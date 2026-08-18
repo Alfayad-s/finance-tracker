@@ -1,0 +1,148 @@
+import { ChevronRight } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { useSettings } from '@/db/hooks'
+import { useSettingsStore } from '@/stores/settingsStore'
+import { Loader } from '@/components/ui/Loader'
+import { InstallSettingsRow } from '@/components/InstallApp'
+import { cn } from '@/lib/utils'
+import { CURRENCIES } from '@/utils/currency'
+import type { FirstDayOfWeek } from '@/types'
+
+export function SettingsPage() {
+  const settings = useSettings()
+  const updateSettings = useSettingsStore((store) => store.updateSettings)
+
+  if (!settings) {
+    return (
+      <Loader
+        size="sm"
+        className="min-h-[50dvh] gap-4 p-4"
+        title="Loading settings..."
+        subtitle="Reading preferences on this device"
+      />
+    )
+  }
+
+  return (
+    <section className="space-y-6">
+      <header>
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+          Settings
+        </h1>
+        <p className="mt-1 text-sm text-slate-500">
+          Everything stays on this device. No account, no cloud.
+        </p>
+      </header>
+
+      <section className="overflow-hidden rounded-2xl border border-blue-100 bg-white">
+        <h2 className="px-4 pt-4 text-sm font-semibold text-slate-900">Preferences</h2>
+        <label className="flex items-center justify-between gap-4 px-4 py-3">
+          <span className="text-sm text-slate-700">Currency</span>
+          <select
+            value={settings.currency}
+            onChange={(event) => {
+              void updateSettings({ currency: event.target.value })
+            }}
+            className="max-w-[60%] rounded-xl border border-blue-100 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600"
+          >
+            {CURRENCIES.map((currency) => (
+              <option key={currency.code} value={currency.code}>
+                {currency.code} · {currency.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="flex items-center justify-between gap-4 border-t border-blue-50 px-4 py-3">
+          <span className="text-sm text-slate-700">Week starts</span>
+          <select
+            value={settings.firstDayOfWeek}
+            onChange={(event) => {
+              void updateSettings({
+                firstDayOfWeek: Number(event.target.value) as FirstDayOfWeek,
+              })
+            }}
+            className="rounded-xl border border-blue-100 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600"
+          >
+            <option value={1}>Monday</option>
+            <option value={0}>Sunday</option>
+          </select>
+        </label>
+        <div className="flex items-center justify-between gap-4 border-t border-blue-50 px-4 py-3">
+          <div className="min-w-0">
+            <p id="soft-insights-label" className="text-sm text-slate-700">
+              Soft insights
+            </p>
+            <p className="text-xs text-slate-400">Gentle notes on Home when spending looks notable</p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={settings.softInsightsEnabled}
+            aria-labelledby="soft-insights-label"
+            onClick={() => {
+              void updateSettings({
+                softInsightsEnabled: !settings.softInsightsEnabled,
+              })
+            }}
+            className={cn(
+              'relative h-7 w-12 shrink-0 rounded-full transition-colors',
+              settings.softInsightsEnabled ? 'bg-blue-600' : 'bg-slate-200',
+            )}
+          >
+            <span
+              aria-hidden
+              className={cn(
+                'absolute top-0.5 size-6 rounded-full bg-white shadow-sm transition-[left,right]',
+                settings.softInsightsEnabled ? 'right-0.5 left-auto' : 'left-0.5 right-auto',
+              )}
+            />
+          </button>
+        </div>
+      </section>
+
+      <InstallSettingsRow />
+
+      <section className="overflow-hidden rounded-2xl border border-blue-100 bg-white">
+        <h2 className="px-4 pt-4 text-sm font-semibold text-slate-900">Data</h2>
+        <Link
+          to="/settings/categories"
+          className="flex items-center justify-between px-4 py-3 text-sm text-slate-700"
+        >
+          Categories
+          <ChevronRight className="size-4 text-slate-400" aria-hidden />
+        </Link>
+        <Link
+          to="/settings/recurring"
+          className="flex items-center justify-between border-t border-blue-50 px-4 py-3 text-sm text-slate-700"
+        >
+          Recurring
+          <ChevronRight className="size-4 text-slate-400" aria-hidden />
+        </Link>
+        <Link
+          to="/settings/review"
+          className="flex items-center justify-between border-t border-blue-50 px-4 py-3 text-sm text-slate-700"
+        >
+          Monthly review
+          <ChevronRight className="size-4 text-slate-400" aria-hidden />
+        </Link>
+        <Link
+          to="/settings/backup"
+          className="flex items-center justify-between border-t border-blue-50 px-4 py-3 text-sm text-slate-700"
+        >
+          Export & import
+          <ChevronRight className="size-4 text-slate-400" aria-hidden />
+        </Link>
+      </section>
+
+      <section className="rounded-2xl border border-blue-100 bg-white px-4 py-4">
+        <h2 className="text-sm font-semibold text-slate-900">Privacy</h2>
+        <p className="mt-2 text-sm leading-relaxed text-slate-500">
+          Finance Tracker never sends your money data anywhere. Transactions,
+          categories, and settings live in this browser only. There is no login
+          and no analytics.
+        </p>
+        <p className="mt-3 text-xs text-slate-400">Version 0.1.0</p>
+      </section>
+    </section>
+  )
+}

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Finance Tracker">
+  <rect width="512" height="512" fill="#2563eb"/>
+  <circle cx="256" cy="256" r="118" fill="none" stroke="#ffffff" stroke-width="26"/>
+  <path d="M256 176v160M214 226h84c22 0 36 14 36 32s-14 32-36 32H214" fill="none" stroke="#ffffff" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
