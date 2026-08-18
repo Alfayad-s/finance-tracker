@@ -7,6 +7,7 @@ import { CategoryDonutChart } from '@/components/charts/CategoryDonutChart'
 import { SpendingTrendChart } from '@/components/charts/SpendingTrendChart'
 import { SoftInsight } from '@/components/SoftInsight'
 import { InstallBanner } from '@/components/InstallApp'
+import { BalanceCard } from '@/components/BalanceCard'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Loader } from '@/components/ui/Loader'
 import { TransactionDetail } from '@/components/TransactionDetail'
@@ -103,15 +104,11 @@ export function Home() {
 
       <InstallBanner />
 
-      <section className="rounded-3xl bg-blue-600 p-5 text-white shadow-lg shadow-blue-600/20">
-        <p className="text-sm text-blue-100">Balance</p>
-        <p className="mt-1 text-3xl font-semibold tracking-tight">
-          {formatCurrency(overview.all.net, currency)}
-        </p>
-        <p className="mt-2 text-sm text-blue-100">
-          All income minus expenses on this device
-        </p>
-      </section>
+      <BalanceCard
+        balance={overview.all.net}
+        currency={currency}
+        month={month}
+      />
 
       {pendingReview ? (
         <Link
