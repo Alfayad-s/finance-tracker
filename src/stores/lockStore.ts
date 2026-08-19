@@ -5,6 +5,7 @@ import { db } from '@/db/db'
 import { putSettings } from '@/db/hooks'
 import { DEFAULT_SETTINGS } from '@/db/seed'
 import { hashPin, pinsMatch } from '@/utils/pin'
+import { usePrivacyStore } from '@/stores/privacyStore'
 import {
   isWebAuthnCancel,
   registerPlatformCredential,
@@ -82,6 +83,7 @@ export const useLockStore = create<LockStore>((set, get) => ({
 
   lock: () => {
     if (!get().enabled) return
+    usePrivacyStore.getState().hidePeek()
     set({ unlocked: false })
   },
 

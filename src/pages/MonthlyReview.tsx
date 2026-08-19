@@ -17,7 +17,7 @@ import { GoalJar } from '@/components/GoalJar'
 import { Button } from '@/components/ui/Button'
 import { Loader } from '@/components/ui/Loader'
 import { CategoryIcon } from '@/utils/categoryIcons'
-import { formatCurrency } from '@/utils/currency'
+import { Amount, AmountPrivacyButton } from '@/components/Amount'
 import { formatMonthTitle, shiftMonth } from '@/utils/date'
 import {
   categoryBreakdown,
@@ -157,7 +157,9 @@ function ReviewFlow({ month }: { month: string }) {
             {isDone ? 'Wrapped' : `${Math.min(stepIndex + 1, countedSteps)} of ${countedSteps}`}
           </p>
         </div>
-        <span className="size-9" />
+        <div className="flex size-9 items-center justify-center">
+          <AmountPrivacyButton />
+        </div>
       </header>
 
       <div
@@ -373,16 +375,20 @@ function NumbersStep({
       <div className="space-y-3 rounded-3xl bg-blue-600 p-5 text-white">
         <p className="text-sm text-blue-100">Net</p>
         <p className="text-3xl font-semibold tracking-tight">
-          {formatCurrency(totals.net, currency)}
+          <Amount value={totals.net} currency={currency} />
         </p>
         <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
           <div>
             <p className="text-blue-100">Income</p>
-            <p className="mt-0.5 font-medium">{formatCurrency(totals.income, currency)}</p>
+            <p className="mt-0.5 font-medium">
+              <Amount value={totals.income} currency={currency} />
+            </p>
           </div>
           <div>
             <p className="text-blue-100">Spent</p>
-            <p className="mt-0.5 font-medium">{formatCurrency(totals.expense, currency)}</p>
+            <p className="mt-0.5 font-medium">
+              <Amount value={totals.expense} currency={currency} />
+            </p>
           </div>
         </div>
       </div>
@@ -445,7 +451,7 @@ function BudgetStep({
               </span>
               <span className="min-w-0 flex-1 truncate text-slate-700">{row.category.name}</span>
               <span className="text-slate-500">
-                {formatCurrency(row.spent - row.limit, currency)} past its cap
+                <Amount value={row.spent - row.limit} currency={currency} /> past its cap
               </span>
             </li>
           ))}

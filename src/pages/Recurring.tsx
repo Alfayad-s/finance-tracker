@@ -19,7 +19,7 @@ import { Loader } from '@/components/ui/Loader'
 import { cn } from '@/lib/utils'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { CategoryIcon } from '@/utils/categoryIcons'
-import { formatCurrency } from '@/utils/currency'
+import { Amount, AmountPrivacyButton } from '@/components/Amount'
 import { formatDisplayDate, todayISO } from '@/utils/date'
 import { frequencyLabel, RECURRING_FREQUENCIES } from '@/utils/recurring'
 import type { Category, RecurringFrequency, RecurringRule, TransactionType } from '@/types'
@@ -130,17 +130,20 @@ export function RecurringPage() {
             <p className="text-sm text-slate-500">Rent, salary, and anything that repeats</p>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            setError(null)
-            setEditing('new')
-          }}
-          className="rounded-full bg-blue-600 p-2 text-white"
-          aria-label="Add recurring transaction"
-        >
-          <Plus className="size-5" aria-hidden />
-        </button>
+        <div className="flex items-center gap-1">
+          <AmountPrivacyButton />
+          <button
+            type="button"
+            onClick={() => {
+              setError(null)
+              setEditing('new')
+            }}
+            className="rounded-full bg-blue-600 p-2 text-white"
+            aria-label="Add recurring transaction"
+          >
+            <Plus className="size-5" aria-hidden />
+          </button>
+        </div>
       </header>
 
       {rules.length === 0 ? (
@@ -189,8 +192,11 @@ export function RecurringPage() {
                     rule.type === 'income' ? 'text-blue-700' : 'text-slate-900'
                   }`}
                 >
-                  {rule.type === 'income' ? '+' : '−'}
-                  {formatCurrency(rule.amount, currency)}
+                  {rule.type === 'income' ? (
+                    <Amount value={rule.amount} currency={currency} sign="in" />
+                  ) : (
+                    <Amount value={rule.amount} currency={currency} sign="out" />
+                  )}
                 </p>
                 <button
                   type="button"

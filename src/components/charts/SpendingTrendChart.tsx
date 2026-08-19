@@ -8,7 +8,7 @@ import {
   YAxis,
 } from 'recharts'
 import { ChartTooltip } from '@/components/charts/ChartTooltip'
-import { formatCompactCurrency, formatCurrency } from '@/utils/currency'
+import { useMoneyText } from '@/hooks/useAmountPrivacy'
 import { formatMonthShort } from '@/utils/date'
 
 const INCOME_COLOR = '#93c5fd'
@@ -21,6 +21,7 @@ export function SpendingTrendChart({
   months: { month: string; income: number; expense: number }[]
   currency: string
 }) {
+  const money = useMoneyText()
   const data = months.map((row) => ({
     ...row,
     label: formatMonthShort(row.month),
@@ -41,8 +42,8 @@ export function SpendingTrendChart({
           {data.map((row) => (
             <tr key={row.month}>
               <td>{row.label}</td>
-              <td>{formatCurrency(row.income, currency)}</td>
-              <td>{formatCurrency(row.expense, currency)}</td>
+              <td>{money(row.income, currency)}</td>
+              <td>{money(row.expense, currency)}</td>
             </tr>
           ))}
         </tbody>
@@ -62,7 +63,7 @@ export function SpendingTrendChart({
             axisLine={false}
             tickLine={false}
             tick={{ fill: '#94a3b8', fontSize: 11 }}
-            tickFormatter={(value: number) => formatCompactCurrency(value, currency)}
+            tickFormatter={(value: number) => money(value, currency, { compact: true })}
             tickCount={4}
           />
           <Tooltip
@@ -73,7 +74,7 @@ export function SpendingTrendChart({
                 label={String(label ?? '')}
                 rows={(payload ?? []).map((item) => ({
                   name: String(item.name),
-                  value: formatCurrency(Number(item.value ?? 0), currency),
+                  value: money(Number(item.value ?? 0), currency),
                   color: String(item.color ?? ''),
                 }))}
               />

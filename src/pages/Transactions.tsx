@@ -11,8 +11,8 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { TransactionDetail } from '@/components/TransactionDetail'
 import { TransactionItem } from '@/components/TransactionItem'
+import { Amount, AmountPrivacyButton } from '@/components/Amount'
 import { cn } from '@/lib/utils'
-import { formatCurrency } from '@/utils/currency'
 import { currentMonth, formatGroupDate, formatMonthTitle, previousMonth } from '@/utils/date'
 import {
   filterTransactions,
@@ -97,13 +97,16 @@ export function Transactions() {
 
   return (
     <section className="space-y-5">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
-          Transactions
-        </h1>
-        <p className="mt-1 text-sm text-slate-500">
-          {filtered.length} {filtered.length === 1 ? 'entry' : 'entries'}
-        </p>
+      <header className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+            Transactions
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">
+            {filtered.length} {filtered.length === 1 ? 'entry' : 'entries'}
+          </p>
+        </div>
+        <AmountPrivacyButton />
       </header>
 
       <label className="relative block">
@@ -183,13 +186,13 @@ export function Transactions() {
           <div>
             <p className="text-slate-500">In</p>
             <p className="font-semibold text-blue-700">
-              {formatCurrency(incomeTotal, currency)}
+              <Amount value={incomeTotal} currency={currency} />
             </p>
           </div>
           <div className="text-right">
             <p className="text-slate-500">Out</p>
             <p className="font-semibold text-slate-900">
-              {formatCurrency(expenseTotal, currency)}
+              <Amount value={expenseTotal} currency={currency} />
             </p>
           </div>
         </div>

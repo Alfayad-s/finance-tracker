@@ -95,6 +95,7 @@ No accounts, no cloud, no tracking — just a fast and beautiful tool to track i
 - [x] PWA “new version available” update prompt
 - [x] Optional local PIN lock
 - [x] Optional Face ID / fingerprint unlock (WebAuthn)
+- [x] Hide amounts (tap to reveal balances and totals)
 
 
 
@@ -448,6 +449,7 @@ This gives the best balance between automatic updates and user control.
 - No server, no analytics, no third-party trackers
 - All data stored in browser IndexedDB
 - Optional local PIN lock (4-digit screen lock on this device), with optional Face ID / fingerprint / Windows Hello via WebAuthn. The PIN is hashed on-device; biometrics stay on this device. This is not encryption. Data still lives in IndexedDB. Forgot PIN → reset the app (deletes local data). JSON backup does not include the PIN or biometric credential; restoring a backup keeps the lock already on this device.
+- Optional Hide amounts: covers balances and totals on screen. Tap the balance card or the eye icon to peek. Peeking is forgotten when you leave the app.
 - Export/Import is user-controlled (JSON backup, CSV export, bank statement CSV/Excel/PDF import on-device)
 - Receipt photos stored only on device
 

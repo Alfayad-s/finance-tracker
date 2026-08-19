@@ -1,5 +1,6 @@
 import { Image, Repeat, Trash2 } from 'lucide-react'
-import { formatCurrency } from '@/utils/currency'
+import { Amount } from '@/components/Amount'
+import { useMoneyText } from '@/hooks/useAmountPrivacy'
 import { formatDisplayDate } from '@/utils/date'
 import { CategoryIcon } from '@/utils/categoryIcons'
 import type { Category, Transaction } from '@/types'
@@ -18,10 +19,13 @@ export function TransactionItem({
   onOpen?: () => void
 }) {
   const isIncome = transaction.type === 'income'
+  const money = useMoneyText()
   const color = category?.color ?? '#2563eb'
   const hasReceipt = Boolean(transaction.receiptPhoto)
   const categoryName = category?.name ?? 'Uncategorized'
-  const amountLabel = `${isIncome ? '+' : '−'}${formatCurrency(transaction.amount, currency)}`
+  const amountLabel = money(transaction.amount, currency, {
+    sign: isIncome ? 'in' : 'out',
+  })
   const openLabel = `${categoryName}, ${isIncome ? 'income' : 'expense'} ${amountLabel}`
 
   const body = (
@@ -52,7 +56,11 @@ export function TransactionItem({
           isIncome ? 'text-blue-700' : 'text-slate-900'
         }`}
       >
-        {amountLabel}
+        {isIncome ? (
+          <Amount value={transaction.amount} currency={currency} sign="in" />
+        ) : (
+          <Amount value={transaction.amount} currency={currency} sign="out" />
+        )}
       </p>
     </>
   )

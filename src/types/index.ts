@@ -81,6 +81,7 @@ export interface Settings {
   pinHash?: string
   pinSalt?: string
   webauthnCredentialId?: string
+  hideAmounts?: boolean
 }
 
 export interface ImportRule {

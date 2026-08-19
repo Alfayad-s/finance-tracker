@@ -1,6 +1,7 @@
 import { motion } from 'motion/react'
 import { CategoryIcon } from '@/utils/categoryIcons'
-import { formatCurrency } from '@/utils/currency'
+import { Amount } from '@/components/Amount'
+import { useMoneyText } from '@/hooks/useAmountPrivacy'
 import { cn } from '@/lib/utils'
 import type { Goal } from '@/types'
 import type { ReactNode } from 'react'
@@ -20,6 +21,7 @@ export function GoalJar({
     ? Math.min(100, (goal.currentAmount / goal.targetAmount) * 100)
     : 0
   const complete = percent >= 100
+  const money = useMoneyText()
   const className = cn(
     'flex flex-col items-center rounded-3xl border border-blue-100 bg-white p-4 text-center',
     compact ? 'gap-2' : 'gap-3',
@@ -54,10 +56,10 @@ export function GoalJar({
       <div className="w-full">
         <p className="truncate font-semibold text-slate-900">{goal.name}</p>
         <p className="mt-0.5 text-xs text-slate-500">
-          {formatCurrency(goal.currentAmount, currency)}
+          <Amount value={goal.currentAmount} currency={currency} />
           <span className="text-slate-400">
             {' '}
-            / {formatCurrency(goal.targetAmount, currency)}
+            / <Amount value={goal.targetAmount} currency={currency} />
           </span>
         </p>
         <p className="mt-1 text-xs font-medium text-blue-700">
@@ -73,7 +75,7 @@ export function GoalJar({
         type="button"
         onClick={onClick}
         className={className}
-        aria-label={`${goal.name}, ${complete ? 'goal reached' : `${Math.round(percent)}% full`}, ${formatCurrency(goal.currentAmount, currency)} of ${formatCurrency(goal.targetAmount, currency)}`}
+        aria-label={`${goal.name}, ${complete ? 'goal reached' : `${Math.round(percent)}% full`}, ${money(goal.currentAmount, currency)} of ${money(goal.targetAmount, currency)}`}
       >
         {body}
       </button>

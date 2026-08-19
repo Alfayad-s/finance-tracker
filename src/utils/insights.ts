@@ -28,6 +28,7 @@ export function pickSoftInsight({
   month,
   previousMonth,
   currency,
+  hideAmounts,
   now = new Date(),
 }: {
   transactions: Transaction[]
@@ -36,6 +37,7 @@ export function pickSoftInsight({
   month: string
   previousMonth: string
   currency: string
+  hideAmounts?: boolean
   now?: Date
 }): SoftInsightData | null {
   const dayOfMonth = getDate(now)
@@ -49,7 +51,9 @@ export function pickSoftInsight({
     return {
       id: 'overall-over',
       message: "This month's spending is a little over the overall budget.",
-      detail: `${formatCurrency(totals.expense - overall.amount, currency)} past the ${formatCurrency(overall.amount, currency)} cap.`,
+      detail: hideAmounts
+        ? undefined
+        : `${formatCurrency(totals.expense - overall.amount, currency)} past the ${formatCurrency(overall.amount, currency)} cap.`,
     }
   }
 
@@ -72,7 +76,9 @@ export function pickSoftInsight({
     return {
       id: `category-over-${topOver.category.id}`,
       message: `${topOver.category.name} is a little over its budget this month.`,
-      detail: `${formatCurrency(topOver.over, currency)} past the ${formatCurrency(topOver.limit, currency)} cap.`,
+      detail: hideAmounts
+        ? undefined
+        : `${formatCurrency(topOver.over, currency)} past the ${formatCurrency(topOver.limit, currency)} cap.`,
     }
   }
 
@@ -83,7 +89,9 @@ export function pickSoftInsight({
       return {
         id: 'pace',
         message: 'At this pace, spending may pass the overall budget before month end.',
-        detail: `${formatCurrency(overall.amount - totals.expense, currency)} left with ${daysInMonth - dayOfMonth} days to go.`,
+        detail: hideAmounts
+          ? undefined
+          : `${formatCurrency(overall.amount - totals.expense, currency)} left with ${daysInMonth - dayOfMonth} days to go.`,
       }
     }
   }
@@ -92,7 +100,9 @@ export function pickSoftInsight({
     return {
       id: 'ahead-of-income',
       message: 'Spending is a little ahead of income this month so far.',
-      detail: `${formatCurrency(totals.expense - totals.income, currency)} more out than in.`,
+      detail: hideAmounts
+        ? undefined
+        : `${formatCurrency(totals.expense - totals.income, currency)} more out than in.`,
     }
   }
 
@@ -137,7 +147,9 @@ export function pickSoftInsight({
     if (remaining / overall.amount >= 0.2) {
       return {
         id: 'budget-left',
-        message: `There's ${formatCurrency(remaining, currency)} left in this month's overall budget.`,
+        message: hideAmounts
+          ? "There's still room left in this month's overall budget."
+          : `There's ${formatCurrency(remaining, currency)} left in this month's overall budget.`,
       }
     }
   }

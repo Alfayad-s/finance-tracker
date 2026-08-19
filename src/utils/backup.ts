@@ -167,5 +167,6 @@ function normalizeSettings(value: unknown): Settings {
     displayName: typeof current.displayName === 'string' ? current.displayName.slice(0, 20) : '',
     avatarId: isAvatarId(current.avatarId) ? current.avatarId : DEFAULT_SETTINGS.avatarId,
     language: typeof current.language === 'string' ? current.language : undefined,
+    hideAmounts: typeof current.hideAmounts === 'boolean' ? current.hideAmounts : false,
   }
 }

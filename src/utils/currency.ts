@@ -27,6 +27,10 @@ export function currencySymbol(currency = 'INR'): string {
   )
 }
 
+export function maskCurrency(currency = 'INR'): string {
+  return `${currencySymbol(currency)}\u00a0••••`
+}
+
 export const CURRENCIES = [
   { code: 'INR', name: 'Indian Rupee' },
   { code: 'USD', name: 'US Dollar' },

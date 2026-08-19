@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { resetAppData } from '@/db/backup'
 import { useSettings } from '@/db/hooks'
 import { useSettingsStore } from '@/stores/settingsStore'
+import { usePrivacyStore } from '@/stores/privacyStore'
 import { Loader } from '@/components/ui/Loader'
 import { Button } from '@/components/ui/Button'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
@@ -115,6 +116,39 @@ export function SettingsPage() {
               className={cn(
                 'absolute top-0.5 size-6 rounded-full bg-white shadow-sm transition-[left,right]',
                 settings.softInsightsEnabled ? 'right-0.5 left-auto' : 'left-0.5 right-auto',
+              )}
+            />
+          </button>
+        </div>
+        <div className="flex items-center justify-between gap-4 border-t border-blue-50 px-4 py-3">
+          <div className="min-w-0">
+            <p id="hide-amounts-label" className="text-sm text-slate-700">
+              Hide amounts
+            </p>
+            <p className="text-xs text-slate-400">
+              Cover balances and totals. Tap the card or the eye to peek.
+            </p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={Boolean(settings.hideAmounts)}
+            aria-labelledby="hide-amounts-label"
+            onClick={() => {
+              const next = !settings.hideAmounts
+              usePrivacyStore.getState().hidePeek()
+              void updateSettings({ hideAmounts: next })
+            }}
+            className={cn(
+              'relative h-7 w-12 shrink-0 rounded-full transition-colors',
+              settings.hideAmounts ? 'bg-blue-600' : 'bg-slate-200',
+            )}
+          >
+            <span
+              aria-hidden
+              className={cn(
+                'absolute top-0.5 size-6 rounded-full bg-white shadow-sm transition-[left,right]',
+                settings.hideAmounts ? 'right-0.5 left-auto' : 'left-0.5 right-auto',
               )}
             />
           </button>

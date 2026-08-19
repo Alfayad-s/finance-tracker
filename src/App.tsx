@@ -6,6 +6,7 @@ import { UpdateBanner } from '@/components/UpdateBanner'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { Home } from '@/pages/Home'
 import { Loader } from '@/components/ui/Loader'
+import { useHidePeekOnLeave } from '@/hooks/useAmountPrivacy'
 import { useLockOnLeave } from '@/hooks/useLockOnLeave'
 import { useLockStore } from '@/stores/lockStore'
 
@@ -63,6 +64,7 @@ function PageFallback() {
 
 export default function App() {
   useLockOnLeave()
+  useHidePeekOnLeave()
   const locked = useLockStore((store) => store.enabled && !store.unlocked)
 
   if (locked) {

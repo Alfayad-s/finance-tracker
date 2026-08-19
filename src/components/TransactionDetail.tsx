@@ -5,7 +5,7 @@ import { ReceiptPicker } from '@/components/ReceiptPicker'
 import { ReceiptViewer } from '@/components/ReceiptViewer'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { CategoryIcon } from '@/utils/categoryIcons'
-import { formatCurrency } from '@/utils/currency'
+import { Amount } from '@/components/Amount'
 import { formatDisplayDate } from '@/utils/date'
 import type { Category, Transaction } from '@/types'
 
@@ -71,8 +71,11 @@ export function TransactionDetail({
                   isIncome ? 'text-blue-700' : 'text-slate-900'
                 }`}
               >
-                {isIncome ? '+' : '−'}
-                {formatCurrency(transaction.amount, currency)}
+                {isIncome ? (
+                  <Amount value={transaction.amount} currency={currency} sign="in" />
+                ) : (
+                  <Amount value={transaction.amount} currency={currency} sign="out" />
+                )}
               </p>
               <p className="text-sm text-slate-500">{formatDisplayDate(transaction.date)}</p>
             </div>

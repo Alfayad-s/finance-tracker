@@ -14,11 +14,11 @@ import { Button } from '@/components/ui/Button'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { GoalJar } from '@/components/GoalJar'
+import { Amount, AmountPrivacyButton } from '@/components/Amount'
 import { Loader } from '@/components/ui/Loader'
 import { cn } from '@/lib/utils'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { CATEGORY_ICON_NAMES, CategoryIcon } from '@/utils/categoryIcons'
-import { formatCurrency } from '@/utils/currency'
 import { formatDisplayDate, todayISO } from '@/utils/date'
 import { totalsFor } from '@/utils/calculations'
 import type { Goal } from '@/types'
@@ -109,20 +109,23 @@ export function Goals() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Goals</h1>
           <p className="mt-1 text-sm text-slate-500">
-            {formatCurrency(Math.max(0, available), currency)} free to put in a jar
+            <Amount value={Math.max(0, available)} currency={currency} /> free to put in a jar
           </p>
         </div>
-        <button
-          type="button"
-          aria-label="Add goal"
-          onClick={() => {
-            setError(null)
-            setEditing('new')
-          }}
-          className="rounded-full bg-blue-600 p-2 text-white"
-        >
-          <Plus className="size-5" aria-hidden />
-        </button>
+        <div className="flex items-center gap-1">
+          <AmountPrivacyButton />
+          <button
+            type="button"
+            aria-label="Add goal"
+            onClick={() => {
+              setError(null)
+              setEditing('new')
+            }}
+            className="rounded-full bg-blue-600 p-2 text-white"
+          >
+            <Plus className="size-5" aria-hidden />
+          </button>
+        </div>
       </header>
 
       {goals.length === 0 ? (
@@ -354,7 +357,7 @@ function GoalDetail({
         ) : null}
 
         <p className="mt-4 text-center text-sm text-slate-500">
-          {formatCurrency(Math.max(0, available), currency)} available to add
+          <Amount value={Math.max(0, available)} currency={currency} /> available to add
         </p>
 
         <label className="mt-4 block space-y-2">

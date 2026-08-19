@@ -15,12 +15,13 @@ import { BudgetProgress } from '@/components/BudgetProgress'
 import { SoftInsight } from '@/components/SoftInsight'
 import { InstallBanner } from '@/components/InstallApp'
 import { BalanceCard } from '@/components/BalanceCard'
+import { Amount, AmountPrivacyButton } from '@/components/Amount'
+import { useAmountHidden } from '@/hooks/useAmountPrivacy'
 import { AvatarFace, isAvatarId } from '@/components/avatars'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Loader } from '@/components/ui/Loader'
 import { TransactionDetail } from '@/components/TransactionDetail'
 import { TransactionItem } from '@/components/TransactionItem'
-import { formatCurrency } from '@/utils/currency'
 import { currentMonth, formatMonthTitle, lastNMonths, previousMonth } from '@/utils/date'
 import { pickSoftInsight } from '@/utils/insights'
 import {
@@ -54,6 +55,7 @@ export function Home() {
   const budgets = useMonthBudgets(month)
   const reviews = useMonthlyReviews()
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const amountsHidden = useAmountHidden()
 
   const overview = useMemo(() => {
     if (!transactions || !categories) return null
@@ -113,6 +115,7 @@ export function Home() {
         month,
         previousMonth: lastMonth,
         currency,
+        hideAmounts: amountsHidden,
       })
     : null
 
@@ -141,13 +144,16 @@ export function Home() {
             </h1>
           </div>
         </div>
-        <Link
-          to="/settings"
-          aria-label="Settings"
-          className="rounded-full p-2 text-slate-500 hover:bg-blue-50 hover:text-blue-600"
-        >
-          <Settings className="size-5" strokeWidth={1.75} aria-hidden />
-        </Link>
+        <div className="flex shrink-0 items-center">
+          <AmountPrivacyButton />
+          <Link
+            to="/settings"
+            aria-label="Settings"
+            className="rounded-full p-2 text-slate-500 hover:bg-blue-50 hover:text-blue-600"
+          >
+            <Settings className="size-5" strokeWidth={1.75} aria-hidden />
+          </Link>
+        </div>
       </header>
 
       <InstallBanner />
@@ -199,13 +205,13 @@ export function Home() {
           <div>
             <p className="text-xs text-slate-500">Income</p>
             <p className="mt-1 text-sm font-semibold text-blue-700">
-              {formatCurrency(overview.monthTotals.income, currency)}
+              <Amount value={overview.monthTotals.income} currency={currency} />
             </p>
           </div>
           <div>
             <p className="text-xs text-slate-500">Spent</p>
             <p className="mt-1 text-sm font-semibold text-slate-900">
-              {formatCurrency(overview.monthTotals.expense, currency)}
+              <Amount value={overview.monthTotals.expense} currency={currency} />
             </p>
           </div>
           <div>
@@ -215,7 +221,7 @@ export function Home() {
                 overview.monthTotals.net >= 0 ? 'text-blue-700' : 'text-slate-900'
               }`}
             >
-              {formatCurrency(overview.monthTotals.net, currency)}
+              <Amount value={overview.monthTotals.net} currency={currency} />
             </p>
           </div>
         </div>

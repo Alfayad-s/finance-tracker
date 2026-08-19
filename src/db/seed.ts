@@ -11,6 +11,7 @@ export const DEFAULT_SETTINGS: Settings = {
   softInsightsEnabled: true,
   displayName: '',
   avatarId: 1,
+  hideAmounts: false,
 }
 
 export const DEFAULT_CATEGORIES: Category[] = [
@@ -45,12 +46,15 @@ export async function seedDatabase(): Promise<void> {
       displayName:
         typeof existingSettings.displayName === 'string' ? existingSettings.displayName : '',
       avatarId: isAvatarId(existingSettings.avatarId) ? existingSettings.avatarId : 1,
+      hideAmounts:
+        typeof existingSettings.hideAmounts === 'boolean' ? existingSettings.hideAmounts : false,
     }
     if (
       existingSettings.theme !== next.theme ||
       existingSettings.softInsightsEnabled !== next.softInsightsEnabled ||
       existingSettings.displayName !== next.displayName ||
-      existingSettings.avatarId !== next.avatarId
+      existingSettings.avatarId !== next.avatarId ||
+      existingSettings.hideAmounts !== next.hideAmounts
     ) {
       await db.settings.put(next)
     }

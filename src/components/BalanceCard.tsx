@@ -1,4 +1,8 @@
 import { formatCurrency } from '@/utils/currency'
+import { Amount } from '@/components/Amount'
+import { useAmountHidden } from '@/hooks/useAmountPrivacy'
+import { usePrivacyStore } from '@/stores/privacyStore'
+import { useSettingsStore } from '@/stores/settingsStore'
 
 export function BalanceCard({
   balance,
@@ -13,6 +17,18 @@ export function BalanceCard({
 }) {
   const [, year, monthNum] = month.match(/^(\d{4})-(\d{2})$/) ?? []
   const expiry = year && monthNum ? `${monthNum}/${year.slice(2)}` : month
+  const hideAmounts = useSettingsStore((store) => store.settings?.hideAmounts === true)
+  const hidden = useAmountHidden()
+  const togglePeek = usePrivacyStore((store) => store.togglePeek)
+  const amountLabel = hidden ? 'Amount hidden' : formatCurrency(balance, currency)
+
+  const amount = (
+    <Amount
+      value={balance}
+      currency={currency}
+      className="min-w-0 truncate text-4xl leading-none font-bold tracking-tight text-neutral-800"
+    />
+  )
 
   return (
     <section
@@ -47,9 +63,18 @@ export function BalanceCard({
         <div className="min-w-0">
           <div className="mb-3 flex flex-col gap-2">
             <ChipIcon />
-            <p className="min-w-0 truncate text-4xl leading-none font-bold tracking-tight text-neutral-800 tabular-nums">
-              {formatCurrency(balance, currency)}
-            </p>
+            {hideAmounts ? (
+              <button
+                type="button"
+                onClick={togglePeek}
+                aria-label={hidden ? `Show amounts, currently hidden` : `Hide amounts, ${amountLabel}`}
+                className="min-w-0 text-left"
+              >
+                {amount}
+              </button>
+            ) : (
+              <p className="min-w-0 truncate">{amount}</p>
+            )}
           </div>
           <div className="flex items-end gap-3 text-[11px] font-semibold tracking-[0.12em] text-neutral-700 uppercase">
             <p className="min-w-0 truncate">{holder}</p>

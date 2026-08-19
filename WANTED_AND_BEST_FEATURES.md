@@ -23,6 +23,7 @@ These are the things that make Finance Tracker feel different from a generic exp
 | **Monthly review** | A calm end-of-month ritual, not a report dump. |
 | **Honest privacy** | PIN / Face ID lock is a screen lock, not fake encryption. Backup is a file the user chooses. |
 | **Face ID & fingerprint** | Optional device unlock on top of PIN. Stays on this device; PIN remains the backup. |
+| **Hide amounts** | Cover balances and totals on a shared screen. Tap the card or the eye to peek. |
 | **Installable PWA** | Home-screen app, offline after first load, update prompt when a new version is waiting. |
 | **Calm light UI** | White cards, blue accents, generous space. Fast entry over dashboard clutter. |
 
@@ -45,9 +46,8 @@ Grouped by how well they fit this product. Prefer the first two lists. The last 
 These stay 100% on-device and make the current app more useful.
 
 1. **Dark / Light / System theme** — already deferred in the spec; still the most requested polish item.
-2. **Hide amounts** — tap to reveal balance and totals (privacy on a shared screen).
-3. **Payment wallets** — Cash / UPI / card / other as first-class filters and summaries (the transaction field already exists).
-4. **Transfers** — move money between wallets without counting as income or expense.
+2. **Payment wallets** — Cash / UPI / card / other as first-class filters and summaries (the transaction field already exists).
+3. **Transfers** — move money between wallets without counting as income or expense.
 5. **Subscriptions hub** — recurring items as a simple “what leaves every month” list, with skip / pause.
 6. **Undo last save** — short snackbar undo after Quick Add, edit, or delete.
 7. **Duplicate / template a transaction** — one tap to enter the same coffee again.
@@ -112,16 +112,15 @@ These fight “private, local, calm.” Keep them out unless the product directi
 
 If building from this file, start here. Highest value for the current app, still on-device:
 
-1. Hide amounts
-2. Undo last save
-3. Subscriptions hub (from recurring)
-4. Payment wallets + transfers
-5. Import rules manager + undo last import
-6. Dark / system theme
-7. Encrypted local backup
-8. Year in review
-9. India financial year
-10. PIN timeout options
+1. Undo last save
+2. Subscriptions hub (from recurring)
+3. Payment wallets + transfers
+4. Import rules manager + undo last import
+5. Dark / system theme
+6. Encrypted local backup
+7. Year in review
+8. India financial year
+9. PIN timeout options
 
 ---
 

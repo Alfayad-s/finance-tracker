@@ -1,7 +1,8 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
+import { Amount } from '@/components/Amount'
 import { ChartTooltip } from '@/components/charts/ChartTooltip'
 import { CategoryIcon } from '@/utils/categoryIcons'
-import { formatCurrency } from '@/utils/currency'
+import { useMoneyText } from '@/hooks/useAmountPrivacy'
 
 export interface CategorySlice {
   id: string
@@ -20,10 +21,12 @@ export function CategoryDonutChart({
   total: number
   currency: string
 }) {
+  const money = useMoneyText()
+
   return (
     <div className="mt-5 flex items-center gap-4">
       <p className="sr-only">
-        Spending this month by category, totaling {formatCurrency(total, currency)}
+        Spending this month by category, totaling {money(total, currency)}
       </p>
       <div className="size-36 shrink-0" aria-hidden>
         <ResponsiveContainer width="100%" height="100%">
@@ -55,7 +58,7 @@ export function CategoryDonutChart({
                     rows={[
                       {
                         name: String(item.name),
-                        value: `${formatCurrency(amount, currency)} · ${percent}%`,
+                        value: `${money(amount, currency)} · ${percent}%`,
                         color: String(item.payload?.color ?? item.color ?? ''),
                       },
                     ]}
@@ -78,7 +81,7 @@ export function CategoryDonutChart({
             </span>
             <span className="min-w-0 truncate text-slate-700">{slice.name}</span>
             <span className="ml-auto shrink-0 font-medium text-slate-900">
-              {formatCurrency(slice.amount, currency)}
+              <Amount value={slice.amount} currency={currency} />
             </span>
           </li>
         ))}
