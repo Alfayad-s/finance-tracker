@@ -8,6 +8,8 @@ const DATE_FORMATS = [
   'dd-MM-yy',
   'dd.MM.yy',
   'dd MMM yyyy',
+  'dd MMMM yyyy',
+  'd MMMM yyyy',
   'dd-MMM-yyyy',
   'dd MMM yy',
   'd/M/yyyy',

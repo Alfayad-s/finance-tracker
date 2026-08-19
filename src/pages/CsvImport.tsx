@@ -40,6 +40,7 @@ export function CsvImportPage() {
   const transactions = useTransactions()
   const settings = useSettings()
   const fileRef = useRef<HTMLInputElement>(null)
+  const sourceRef = useRef<'bank' | 'supermoney'>('bank')
   const pinnedRef = useRef(new Set<string>())
   const rulesRef = useRef<ImportRule[]>([])
 
@@ -91,7 +92,8 @@ export function CsvImportPage() {
     }
     setBusy(true)
     try {
-      const prepared = await parseStatementFile(file, unlockPassword || undefined)
+      const preferred = sourceRef.current === 'supermoney' ? 'supermoney' : null
+      const prepared = await parseStatementFile(file, unlockPassword || undefined, preferred)
       pinnedRef.current = new Set()
       setFileName(file.name)
       setCsv(prepared.csv)
@@ -268,20 +270,51 @@ export function CsvImportPage() {
       {step === 'pick' ? (
         <section className="space-y-3 rounded-2xl border border-blue-100 bg-white p-4">
           <p className="text-sm leading-relaxed text-slate-500">
-            Choose a CSV, Excel, or PDF from HDFC, SBI, ICICI, Axis, Kotak, or any statement
-            with date and amount columns. Existing transactions stay as they are.
+            Choose SuperMoney transaction history or a bank statement. CSV, Excel, and PDF
+            stay on this device. Existing transactions are not replaced.
           </p>
           <input
             ref={fileRef}
             type="file"
             accept=".csv,.xlsx,.xls,.xlsm,.pdf,text/csv,text/plain,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             className="sr-only"
-            aria-label="Bank statement CSV, Excel, or PDF"
+            aria-label="Statement file"
             onChange={(event) => void onFile(event.target.files?.[0])}
           />
-          <Button className="w-full" disabled={busy} onClick={() => fileRef.current?.click()}>
-            {busy ? 'Reading…' : 'Choose CSV, Excel, or PDF'}
-          </Button>
+          <div className="grid gap-2">
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => {
+                sourceRef.current = 'supermoney'
+                fileRef.current?.click()
+              }}
+              className="flex items-center gap-3 rounded-2xl border border-blue-100 bg-slate-50 px-3 py-3 text-left transition-[opacity,transform] hover:bg-blue-50 disabled:opacity-50"
+            >
+              <img
+                src="/social-icons/supermoney-logo.png"
+                alt=""
+                className="size-12 shrink-0 rounded-xl"
+              />
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold text-slate-900">SuperMoney</span>
+                <span className="block text-xs text-slate-500">
+                  Transaction history · CSV, Excel, or PDF
+                </span>
+              </span>
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => {
+                sourceRef.current = 'bank'
+                fileRef.current?.click()
+              }}
+              className="flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-[opacity,transform] hover:opacity-90 active:scale-[0.97] disabled:opacity-50"
+            >
+              {busy ? 'Reading…' : 'Bank statement CSV, Excel, or PDF'}
+            </button>
+          </div>
           {pendingFile ? (
             <form
               className="space-y-3 rounded-xl bg-slate-50 p-3"

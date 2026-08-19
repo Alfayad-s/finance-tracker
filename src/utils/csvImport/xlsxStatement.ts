@@ -1,5 +1,6 @@
 import { read, utils, type WorkBook } from 'xlsx'
 import { prepareRows } from './presets'
+import type { BankPresetId } from './types'
 
 export function isSpreadsheetFile(file: File): boolean {
   const name = file.name.toLowerCase()
@@ -16,13 +17,14 @@ export function isSpreadsheetFile(file: File): boolean {
 export async function prepareSpreadsheet(
   data: ArrayBuffer,
   filename: string,
+  preferredPreset?: BankPresetId | null,
 ): Promise<ReturnType<typeof prepareRows>> {
   const rows = extractSpreadsheetRows(data)
   if (rows.length < 2) {
     throw new Error('That spreadsheet has no transaction rows')
   }
   try {
-    return prepareRows(rows, filename, 'xlsx')
+    return prepareRows(rows, filename, 'xlsx', preferredPreset)
   } catch {
     throw new Error(
       'Could not find date and amount columns in that spreadsheet. Check the sheet or try CSV.',

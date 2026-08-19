@@ -21,6 +21,8 @@ const HINTS: { keywords: string[]; categoryId: string }[] = [
       'barista',
       'cafe coffee',
       'eatclub',
+      'bakery',
+      'juice',
     ],
   },
   {

@@ -40,10 +40,11 @@ export async function preparePdf(
   data: ArrayBuffer,
   filename: string,
   password?: string,
+  preferredPreset?: BankPresetId | null,
 ): Promise<ReturnType<typeof prepareRows>> {
   const { rows, hint } = await extractPdfTable(data, password)
   try {
-    return prepareRows(rows, filename, 'pdf', hint)
+    return prepareRows(rows, filename, 'pdf', preferredPreset ?? hint)
   } catch {
     throw new Error(
       'Could not read a transaction table in that PDF. Try a CSV export from netbanking.',
@@ -249,6 +250,12 @@ function isNoiseRow(row: string[]): boolean {
 
 function bankHintFromText(text: string): BankPresetId | null {
   const sample = text.slice(0, 5000).toLowerCase()
+  if (
+    sample.includes('supermoney') ||
+    (sample.includes('transaction history') && sample.includes('status') && sample.includes('name'))
+  ) {
+    return 'supermoney'
+  }
   if (sample.includes('hdfc')) return 'hdfc'
   if (sample.includes('state bank') || /\bsbi\b/.test(sample)) return 'sbi'
   if (sample.includes('icici')) return 'icici'

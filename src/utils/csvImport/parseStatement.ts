@@ -12,6 +12,7 @@ export function isPdfFile(file: File): boolean {
 export async function parseStatementFile(
   file: File,
   password?: string,
+  preferredPreset?: BankPresetId | null,
 ): Promise<{
   csv: ParsedCsv
   presetId: BankPresetId
@@ -19,14 +20,14 @@ export async function parseStatementFile(
 }> {
   if (isPdfFile(file)) {
     const data = await file.arrayBuffer()
-    return preparePdf(data, file.name, password)
+    return preparePdf(data, file.name, password, preferredPreset)
   }
 
   if (isSpreadsheetFile(file)) {
     const data = await file.arrayBuffer()
-    return prepareSpreadsheet(data, file.name)
+    return prepareSpreadsheet(data, file.name, preferredPreset)
   }
 
   const text = await file.text()
-  return prepareCsv(text, file.name)
+  return prepareCsv(text, file.name, preferredPreset)
 }

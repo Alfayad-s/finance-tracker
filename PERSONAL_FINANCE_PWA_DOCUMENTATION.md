@@ -87,7 +87,7 @@ No accounts, no cloud, no tracking — just a fast and beautiful tool to track i
 - [x] Monthly Review ritual (guided end-of-month flow)
 - [x] Export (CSV + JSON)
 - [x] Import (JSON)
-- [x] Smart bank statement import (CSV, Excel, and PDF, on-device)
+- [x] Smart bank statement import (CSV, Excel, PDF, SuperMoney, on-device)
 - [x] Receipt photo attachment (stored locally)
 - [x] Empty states & micro-interactions
 - [x] Accessibility improvements

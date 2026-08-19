@@ -12,9 +12,11 @@ interface PresetDef {
   drCr: string[]
   type: string[]
   category: string[]
+  status: string[]
 }
 
 export const BANK_PRESETS: { id: BankPresetId; label: string }[] = [
+  { id: 'supermoney', label: 'SuperMoney' },
   { id: 'hdfc', label: 'HDFC' },
   { id: 'sbi', label: 'SBI' },
   { id: 'icici', label: 'ICICI' },
@@ -78,6 +80,19 @@ const CATEGORY_ALIASES = ['category']
 
 const PRESETS: PresetDef[] = [
   {
+    id: 'supermoney',
+    label: 'SuperMoney',
+    date: ['date'],
+    description: ['name'],
+    debit: [],
+    credit: [],
+    amount: ['amount'],
+    drCr: [],
+    type: [],
+    category: [],
+    status: ['status'],
+  },
+  {
     id: 'hdfc',
     label: 'HDFC',
     date: ['date'],
@@ -88,6 +103,7 @@ const PRESETS: PresetDef[] = [
     drCr: [],
     type: [],
     category: [],
+    status: [],
   },
   {
     id: 'sbi',
@@ -100,6 +116,7 @@ const PRESETS: PresetDef[] = [
     drCr: [],
     type: [],
     category: [],
+    status: [],
   },
   {
     id: 'icici',
@@ -112,6 +129,7 @@ const PRESETS: PresetDef[] = [
     drCr: [],
     type: [],
     category: [],
+    status: [],
   },
   {
     id: 'axis',
@@ -124,6 +142,7 @@ const PRESETS: PresetDef[] = [
     drCr: [],
     type: [],
     category: [],
+    status: [],
   },
   {
     id: 'kotak',
@@ -136,6 +155,7 @@ const PRESETS: PresetDef[] = [
     drCr: ['dr cr'],
     type: [],
     category: [],
+    status: [],
   },
   {
     id: 'finance-tracker',
@@ -148,6 +168,7 @@ const PRESETS: PresetDef[] = [
     drCr: [],
     type: ['type'],
     category: ['category'],
+    status: [],
   },
   {
     id: 'generic',
@@ -160,6 +181,7 @@ const PRESETS: PresetDef[] = [
     drCr: DRCR_ALIASES,
     type: TYPE_ALIASES,
     category: CATEGORY_ALIASES,
+    status: ['status'],
   },
 ]
 
@@ -202,6 +224,7 @@ export function mappingFromPreset(headers: string[], presetId: BankPresetId): Co
   mapping.drCr = takeColumn(headers, preset.drCr, used)
   mapping.type = takeColumn(headers, preset.type, used)
   mapping.category = takeColumn(headers, preset.category, used)
+  mapping.status = takeColumn(headers, preset.status, used)
 
   if (presetId === 'generic') {
     return mappingFromGeneric(headers)
@@ -226,6 +249,7 @@ function mappingFromGeneric(headers: string[]): ColumnMapping {
   mapping.drCr = takeColumn(headers, DRCR_ALIASES, used)
   mapping.type = takeColumn(headers, TYPE_ALIASES, used)
   mapping.category = takeColumn(headers, CATEGORY_ALIASES, used)
+  mapping.status = takeColumn(headers, ['status'], used)
   if (mapping.debit == null && mapping.credit == null) {
     mapping.amount = takeColumn(headers, AMOUNT_ALIASES, used)
   }
@@ -247,7 +271,7 @@ function locateHeader(
     for (const preset of PRESETS) {
       if (preset.id === 'generic') continue
       let score = scorePreset(headers, preset)
-      if (hint === preset.id) score += 5
+      if (hint === preset.id) score += hint === 'supermoney' ? 12 : 5
       if (!best || score > best.score) {
         best = { index, presetId: preset.id, score }
       }
@@ -283,6 +307,7 @@ function scorePreset(headers: string[], preset: PresetDef): number {
     'drCr',
     'type',
     'category',
+    'status',
   ]
   for (const role of roles) {
     const aliases = preset[role]
@@ -297,6 +322,7 @@ function scorePreset(headers: string[], preset: PresetDef): number {
 
 function hintFromFilename(filename: string): BankPresetId | null {
   const name = filename.toLowerCase()
+  if (/super[\s_-]*money/.test(name)) return 'supermoney'
   if (/\bhdfc\b/.test(name)) return 'hdfc'
   if (/\bsbi\b/.test(name) || /state\s*bank/.test(name)) return 'sbi'
   if (/\bicici\b/.test(name)) return 'icici'

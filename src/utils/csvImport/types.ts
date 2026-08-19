@@ -1,6 +1,7 @@
 import type { TransactionType } from '@/types'
 
 export type BankPresetId =
+  | 'supermoney'
   | 'hdfc'
   | 'sbi'
   | 'icici'
@@ -18,6 +19,7 @@ export interface ColumnMapping {
   drCr: number | null
   type: number | null
   category: number | null
+  status: number | null
 }
 
 export interface ParsedCsv {
@@ -46,6 +48,7 @@ export const EMPTY_MAPPING: ColumnMapping = {
   drCr: null,
   type: null,
   category: null,
+  status: null,
 }
 
 export const MAPPING_ROLES = [
@@ -57,4 +60,5 @@ export const MAPPING_ROLES = [
   { key: 'drCr', label: 'Dr / Cr' },
   { key: 'type', label: 'Type' },
   { key: 'category', label: 'Category' },
+  { key: 'status', label: 'Status' },
 ] as const

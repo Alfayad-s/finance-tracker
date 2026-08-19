@@ -28,6 +28,11 @@ function mapRow(row: string[], sourceIndex: number, mapping: ColumnMapping): Map
     return invalid(sourceIndex, dateRaw, note, 'Balance or total row')
   }
 
+  const status = cell(row, mapping.status)
+  if (status && !isSuccessStatus(status)) {
+    return invalid(sourceIndex, dateRaw, note, `Skipped ${status.trim() || 'unsuccessful'} row`)
+  }
+
   const date = parseStatementDate(dateRaw)
   if (!date) {
     return invalid(sourceIndex, dateRaw, note, 'Could not read the date')
@@ -66,7 +71,8 @@ function resolveAmount(
   const fromDrCr = mapping.drCr != null ? parseDrCr(cell(row, mapping.drCr)) : null
   const fromType = mapping.type != null ? parseTypeCell(cell(row, mapping.type)) : null
   const fromHint = parsed.hint === 'cr' ? 'income' : parsed.hint === 'dr' ? 'expense' : null
-  const type = fromType ?? fromDrCr ?? fromHint ?? 'expense'
+  const fromSign = parsed.value < 0 ? 'expense' : /^\s*\+/.test(amountRaw) ? 'income' : null
+  const type = fromType ?? fromDrCr ?? fromHint ?? fromSign ?? 'expense'
 
   return { amount: roundMoney(parsed.value), type }
 }
@@ -74,6 +80,11 @@ function resolveAmount(
 function cell(row: string[], index: number | null): string {
   if (index == null) return ''
   return row[index] ?? ''
+}
+
+function isSuccessStatus(status: string): boolean {
+  const value = status.trim().toLowerCase()
+  return value === 'success' || value === 'successful' || value === 'completed' || value === 'paid'
 }
 
 function isJunk(value: string): boolean {

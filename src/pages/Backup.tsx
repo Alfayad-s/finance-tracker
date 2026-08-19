@@ -143,8 +143,8 @@ export function BackupPage() {
       <section className="space-y-3 rounded-2xl border border-blue-100 bg-white p-4">
         <h2 className="text-sm font-semibold text-slate-900">Bank statement</h2>
         <p className="text-sm leading-relaxed text-slate-500">
-          Add transactions from an HDFC, SBI, ICICI, Axis, Kotak, or generic CSV, Excel, or
-          PDF. You preview rows first. This does not replace existing data.
+          Add SuperMoney transaction history or a bank CSV, Excel, or PDF. You preview rows
+          first. This does not replace existing data.
         </p>
         <Link
           to="/settings/import"
