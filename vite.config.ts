@@ -56,6 +56,17 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          if (id.includes('node_modules/pdfjs-dist')) return 'pdf'
+          if (id.includes('node_modules/xlsx')) return 'xlsx'
+          if (id.includes('node_modules/recharts')) return 'charts'
+        },
+      },
+    },
+  },
   optimizeDeps: {
     include: ['pdfjs-dist', 'xlsx'],
   },

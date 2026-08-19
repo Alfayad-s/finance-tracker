@@ -1,10 +1,15 @@
-import { useCallback, useEffect, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { generateDueRecurringTransactions } from '@/db/recurring'
-import { TransactionForm } from '@/components/TransactionForm'
+import { Loader } from '@/components/ui/Loader'
 import { Toast } from '@/components/ui/Toast'
 import { BottomNav } from './BottomNav'
+
+const TransactionForm = lazy(async () => {
+  const module = await import('@/components/TransactionForm')
+  return { default: module.TransactionForm }
+})
 
 export function AppLayout() {
   const location = useLocation()
@@ -44,18 +49,33 @@ export function AppLayout() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
         >
-          <Outlet />
+          <Suspense
+            fallback={
+              <Loader
+                size="sm"
+                className="min-h-[40dvh] gap-4 p-4"
+                title="Loading..."
+                subtitle="Opening this screen"
+              />
+            }
+          >
+            <Outlet />
+          </Suspense>
         </motion.div>
       </main>
       <BottomNav onAdd={openQuickAdd} />
-      <TransactionForm
-        open={quickAddOpen}
-        onClose={closeQuickAdd}
-        onSaved={(message) => {
-          setQuickAddOpen(false)
-          setToast(message)
-        }}
-      />
+      {quickAddOpen ? (
+        <Suspense fallback={null}>
+          <TransactionForm
+            open={quickAddOpen}
+            onClose={closeQuickAdd}
+            onSaved={(message) => {
+              setQuickAddOpen(false)
+              setToast(message)
+            }}
+          />
+        </Suspense>
+      ) : null}
       <Toast message={toast} onDismiss={dismissToast} />
     </div>
   )

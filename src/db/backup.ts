@@ -1,6 +1,8 @@
+import { stripPinLock } from '@/utils/pin'
+import { buildBackup, type BackupFile } from '@/utils/backup'
+import { SETTINGS_ID } from './constants'
 import { db } from './db'
 import { DEFAULT_CATEGORIES, DEFAULT_SETTINGS } from './seed'
-import { buildBackup, type BackupFile } from '@/utils/backup'
 
 export async function readBackup(): Promise<BackupFile> {
   const [
@@ -33,11 +35,12 @@ export async function readBackup(): Promise<BackupFile> {
     goals,
     recurringRules,
     monthlyReviews,
-    settings: appSettings,
+    settings: stripPinLock(appSettings),
   })
 }
 
 export async function restoreBackup(backup: BackupFile): Promise<void> {
+  const previous = await db.settings.get(SETTINGS_ID)
   await db.transaction('rw', [...ALL_TABLES], async () => {
     await clearAllTables()
 
@@ -47,7 +50,15 @@ export async function restoreBackup(backup: BackupFile): Promise<void> {
     if (backup.goals.length > 0) await db.goals.bulkPut(backup.goals)
     if (backup.recurringRules.length > 0) await db.recurringRules.bulkPut(backup.recurringRules)
     if (backup.monthlyReviews.length > 0) await db.monthlyReviews.bulkPut(backup.monthlyReviews)
-    await db.settings.put(backup.settings)
+    await db.settings.put({
+      ...backup.settings,
+      ...(previous?.pinHash && previous.pinSalt
+        ? { pinHash: previous.pinHash, pinSalt: previous.pinSalt }
+        : {}),
+      ...(previous?.webauthnCredentialId
+        ? { webauthnCredentialId: previous.webauthnCredentialId }
+        : {}),
+    })
   })
 }
 

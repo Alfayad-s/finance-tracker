@@ -8,6 +8,7 @@ import { Loader } from '@/components/ui/Loader'
 import { Button } from '@/components/ui/Button'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { InstallSettingsRow } from '@/components/InstallApp'
+import { PinLockSettings } from '@/components/PinLockSettings'
 import { ProfileEditor } from '@/components/ProfileEditor'
 import { isAvatarId } from '@/components/avatars'
 import { cn } from '@/lib/utils'
@@ -120,6 +121,8 @@ export function SettingsPage() {
         </div>
       </section>
 
+      <PinLockSettings />
+
       <InstallSettingsRow />
 
       <section className="overflow-hidden rounded-2xl border border-blue-100 bg-white">
@@ -176,7 +179,8 @@ export function SettingsPage() {
         <p className="mt-2 text-sm leading-relaxed text-slate-500">
           Finance Tracker never sends your money data anywhere. Transactions,
           categories, and settings live in this browser only. There is no login
-          and no analytics.
+          and no analytics. An optional PIN or device unlock (Face ID / fingerprint)
+          only hides the screen on this device; it does not encrypt your data.
         </p>
         <p className="mt-3 text-xs text-slate-400">Version 0.1.0</p>
       </section>

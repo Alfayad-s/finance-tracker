@@ -6,24 +6,13 @@ import {
 } from 'pdfjs-dist'
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
 import { parseStatementDate } from './dates'
+import { PdfPasswordError } from './parseErrors'
 import { prepareRows } from './presets'
 import type { BankPresetId } from './types'
 
 GlobalWorkerOptions.workerSrc = workerUrl
 
-export class PdfPasswordError extends Error {
-  readonly incorrect: boolean
-
-  constructor(incorrect: boolean) {
-    super(
-      incorrect
-        ? 'That password did not work'
-        : 'This statement is locked. Enter the password from your bank.',
-    )
-    this.name = 'PdfPasswordError'
-    this.incorrect = incorrect
-  }
-}
+export { PdfPasswordError }
 
 interface Token {
   str: string

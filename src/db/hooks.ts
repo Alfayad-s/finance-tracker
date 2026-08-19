@@ -20,6 +20,36 @@ export function useTransactions() {
   return useLiveQuery(() => db.transactions.orderBy('date').reverse().toArray(), [])
 }
 
+export function useRecentTransactions(limit = 5) {
+  return useLiveQuery(
+    () => db.transactions.orderBy('date').reverse().limit(limit).toArray(),
+    [limit],
+  )
+}
+
+export function useTransactionsSince(startDate: string) {
+  return useLiveQuery(
+    () => db.transactions.where('date').aboveOrEqual(startDate).sortBy('date'),
+    [startDate],
+  )
+}
+
+export function useTransactionCount() {
+  return useLiveQuery(() => db.transactions.count(), [])
+}
+
+export function useMonthHasTransactions(month: string) {
+  return useLiveQuery(
+    () =>
+      db.transactions
+        .where('date')
+        .between(`${month}-01`, `${month}-\uffff`, true, true)
+        .count()
+        .then((count) => count > 0),
+    [month],
+  )
+}
+
 export function useCategories() {
   return useLiveQuery(() => db.categories.orderBy('order').toArray(), [])
 }

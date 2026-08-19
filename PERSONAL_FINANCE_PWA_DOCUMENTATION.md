@@ -60,22 +60,22 @@ No accounts, no cloud, no tracking — just a fast and beautiful tool to track i
 
 ### 3.1 Phase 1 – MVP (Core Value)
 
-- [ ] Quick Add Transaction (Income / Expense)
-- [ ] Transaction List with search & filters
-- [ ] Categories (pre-defined + custom)
-- [ ] Home Dashboard (balance, monthly overview)
-- [ ] Dark / Light / System theme
-- [ ] Currency selection
-- [ ] Basic Settings
-- [ ] Fully offline + Installable PWA
+- [x] Quick Add Transaction (Income / Expense)
+- [x] Transaction List with search & filters
+- [x] Categories (pre-defined + custom)
+- [x] Home Dashboard (balance, monthly overview)
+- [ ] Dark / Light / System theme (deferred — app is light-only)
+- [x] Currency selection
+- [x] Basic Settings
+- [x] Fully offline + Installable PWA
 
 
 
 ### 3.2 Phase 2 – Budgeting & Goals
 
-- [ ] Monthly overall + category budgets
-- [ ] Budget progress bars
-- [ ] Visual Goal Jars (create, fund, track)
+- [x] Monthly overall + category budgets
+- [x] Budget progress bars
+- [x] Visual Goal Jars (create, fund, track)
 - [x] Recurring transactions
 - [x] Soft Insights on Home screen
 - [x] Monthly spending overview charts
@@ -91,7 +91,10 @@ No accounts, no cloud, no tracking — just a fast and beautiful tool to track i
 - [x] Receipt photo attachment (stored locally)
 - [x] Empty states & micro-interactions
 - [x] Accessibility improvements
-- [ ] Performance optimizations
+- [x] Performance optimizations
+- [x] PWA “new version available” update prompt
+- [x] Optional local PIN lock
+- [x] Optional Face ID / fingerprint unlock (WebAuthn)
 
 
 
@@ -444,7 +447,7 @@ This gives the best balance between automatic updates and user control.
 
 - No server, no analytics, no third-party trackers
 - All data stored in browser IndexedDB
-- Optional local PIN lock can be added later (Phase 3+)
+- Optional local PIN lock (4-digit screen lock on this device), with optional Face ID / fingerprint / Windows Hello via WebAuthn. The PIN is hashed on-device; biometrics stay on this device. This is not encryption. Data still lives in IndexedDB. Forgot PIN → reset the app (deletes local data). JSON backup does not include the PIN or biometric credential; restoring a backup keeps the lock already on this device.
 - Export/Import is user-controlled (JSON backup, CSV export, bank statement CSV/Excel/PDF import on-device)
 - Receipt photos stored only on device
 
@@ -463,7 +466,38 @@ This gives the best balance between automatic updates and user control.
 
 
 
-## 14. Future Possibilities (Post Phase 3)
+## 14. Next to implement
+
+Ordered remaining work from this document. Phase 1–3 core features are done except the items below.
+
+### Next (in scope)
+
+All Phase 3 in-scope items from this document are done.
+
+### Deferred
+
+- Dark / Light / System theme — listed in Phase 1; product is light-only for now.
+
+### Later (post Phase 3)
+
+- Optional encrypted local backup
+- Multiple currencies with manual exchange rates
+- Custom category icons
+- Data visualization improvements
+- Very light optional cloud backup (user opt-in only)
+
+### Out of scope (do not build)
+
+- Bank / SMS auto-import (manual file import is enough)
+- Cloud sync, multi-user, investments, net worth
+- Push notifications for bills
+- AI predictions
+
+---
+
+
+
+## 15. Future Possibilities (Post Phase 3)
 
 - Optional encrypted local backup
 - Multiple currencies with manual exchange rates
@@ -475,7 +509,7 @@ This gives the best balance between automatic updates and user control.
 
 
 
-## 15. Getting Started (For Developer)
+## 16. Getting Started (For Developer)
 
 ```bash
 # Create project
@@ -496,7 +530,7 @@ Then configure Tailwind, Vite PWA plugin, and Dexie as documented in the impleme
 
 
 
-## 16. Success Metrics (Simple)
+## 17. Success Metrics (Simple)
 
 - Time to add a transaction < 8 seconds
 - App usable 100% offline after first visit

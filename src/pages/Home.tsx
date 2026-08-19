@@ -1,10 +1,17 @@
-import { useMemo, useState } from 'react'
+import { lazy, Suspense, useMemo, useState } from 'react'
 import { Plus, Settings } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { useCategories, useMonthBudgets, useMonthlyReviews, useSettings, useTransactions } from '@/db/hooks'
+import {
+  useCategories,
+  useMonthBudgets,
+  useMonthHasTransactions,
+  useMonthlyReviews,
+  useRecentTransactions,
+  useSettings,
+  useTransactionCount,
+  useTransactionsSince,
+} from '@/db/hooks'
 import { BudgetProgress } from '@/components/BudgetProgress'
-import { CategoryDonutChart } from '@/components/charts/CategoryDonutChart'
-import { SpendingTrendChart } from '@/components/charts/SpendingTrendChart'
 import { SoftInsight } from '@/components/SoftInsight'
 import { InstallBanner } from '@/components/InstallApp'
 import { BalanceCard } from '@/components/BalanceCard'
@@ -24,22 +31,37 @@ import {
   transactionsInMonth,
 } from '@/utils/calculations'
 
+const CategoryDonutChart = lazy(async () => {
+  const module = await import('@/components/charts/CategoryDonutChart')
+  return { default: module.CategoryDonutChart }
+})
+
+const SpendingTrendChart = lazy(async () => {
+  const module = await import('@/components/charts/SpendingTrendChart')
+  return { default: module.SpendingTrendChart }
+})
+
 export function Home() {
   const categories = useCategories()
   const settings = useSettings()
-  const transactions = useTransactions()
   const month = currentMonth()
   const lastMonth = previousMonth()
+  const rangeStart = `${lastNMonths(6, month)[0]}-01`
+  const transactions = useTransactionsSince(rangeStart)
+  const recent = useRecentTransactions(5)
+  const totalCount = useTransactionCount()
+  const lastMonthHasRows = useMonthHasTransactions(lastMonth)
   const budgets = useMonthBudgets(month)
   const reviews = useMonthlyReviews()
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
   const overview = useMemo(() => {
     if (!transactions || !categories) return null
+    const trendMonths = lastNMonths(6, month)
     const monthly = transactionsInMonth(transactions, month)
     const monthTotals = totalsFor(monthly)
     const breakdown = categoryBreakdown(monthly, categories, 'expense')
-    const trend = monthlyTotals(transactions, lastNMonths(6, month))
+    const trend = monthlyTotals(transactions, trendMonths)
     const overallBudget = (budgets ?? []).find((budget) => budget.categoryId === null)
 
     return {
@@ -47,12 +69,20 @@ export function Home() {
       breakdown,
       trend,
       hasTrend: trend.some((row) => row.income > 0 || row.expense > 0),
-      recent: transactions.slice(0, 5),
       overallBudget,
     }
   }, [transactions, categories, month, budgets])
 
-  if (!categories || !settings || !transactions || !overview || !budgets) {
+  if (
+    !categories ||
+    !settings ||
+    !transactions ||
+    !recent ||
+    totalCount === undefined ||
+    lastMonthHasRows === undefined ||
+    !overview ||
+    !budgets
+  ) {
     return (
       <Loader
         size="sm"
@@ -68,11 +98,12 @@ export function Home() {
   const displayName = settings.displayName.trim()
   const avatarId = isAvatarId(settings.avatarId) ? settings.avatarId : 1
   const selected = selectedId
-    ? transactions.find((transaction) => transaction.id === selectedId)
+    ? (recent.find((transaction) => transaction.id === selectedId) ??
+      transactions.find((transaction) => transaction.id === selectedId))
     : undefined
   const pendingReview =
     reviews &&
-    transactions.some((transaction) => transaction.date.startsWith(lastMonth)) &&
+    lastMonthHasRows &&
     !reviews.some((review) => review.month === lastMonth)
   const insight = settings.softInsightsEnabled
     ? pickSoftInsight({
@@ -145,7 +176,7 @@ export function Home() {
 
       {insight ? <SoftInsight insight={insight} /> : null}
 
-      {transactions.length === 0 ? (
+      {totalCount === 0 ? (
         <EmptyState
           icon={Plus}
           title="Start with one entry"
@@ -201,11 +232,13 @@ export function Home() {
         ) : null}
 
         {overview.breakdown.slices.length > 0 ? (
-          <CategoryDonutChart
-            slices={overview.breakdown.slices}
-            total={overview.breakdown.total}
-            currency={currency}
-          />
+          <Suspense fallback={<div className="mt-4 h-48" aria-hidden />}>
+            <CategoryDonutChart
+              slices={overview.breakdown.slices}
+              total={overview.breakdown.total}
+              currency={currency}
+            />
+          </Suspense>
         ) : (
           <div className="mt-4">
             <EmptyState
@@ -234,7 +267,9 @@ export function Home() {
             </div>
           </div>
           <div className="mt-3">
-            <SpendingTrendChart months={overview.trend} currency={currency} />
+            <Suspense fallback={<div className="h-40" aria-hidden />}>
+              <SpendingTrendChart months={overview.trend} currency={currency} />
+            </Suspense>
           </div>
         </section>
       ) : null}
@@ -247,7 +282,7 @@ export function Home() {
           </Link>
         </div>
         <ul className="divide-y divide-blue-50">
-          {overview.recent.map((transaction) => (
+          {recent.map((transaction) => (
             <li key={transaction.id}>
               <TransactionItem
                 transaction={transaction}

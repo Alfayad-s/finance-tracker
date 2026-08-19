@@ -78,6 +78,9 @@ export interface Settings {
   displayName: string
   avatarId: number
   language?: string
+  pinHash?: string
+  pinSalt?: string
+  webauthnCredentialId?: string
 }
 
 export interface ImportRule {

@@ -2,18 +2,16 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { MotionConfig } from 'motion/react'
-import { registerSW } from 'virtual:pwa-register'
 import { db } from '@/db/db'
 import { generateDueRecurringTransactions } from '@/db/recurring'
 import { seedDatabase } from '@/db/seed'
+import { initPwa } from '@/pwa/register'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { Loader } from '@/components/ui/Loader'
 import App from './App.tsx'
 import './index.css'
 
-if (import.meta.env.PROD) {
-  registerSW({ immediate: true })
-}
+initPwa()
 
 const root = createRoot(document.getElementById('root')!)
 
