@@ -10,6 +10,7 @@ import { RecurringPage } from '@/pages/Recurring'
 import { ReviewsPage } from '@/pages/Reviews'
 import { ReviewShell } from '@/pages/MonthlyReview'
 import { BackupPage } from '@/pages/Backup'
+import { CsvImportPage } from '@/pages/CsvImport'
 import { Transactions } from '@/pages/Transactions'
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
         <Route path="/settings/recurring" element={<RecurringPage />} />
         <Route path="/settings/review" element={<ReviewsPage />} />
         <Route path="/settings/backup" element={<BackupPage />} />
+        <Route path="/settings/import" element={<CsvImportPage />} />
       </Route>
     </Routes>
     </>

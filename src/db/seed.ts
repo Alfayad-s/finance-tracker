@@ -1,4 +1,5 @@
 import type { Category, Settings } from '@/types'
+import { isAvatarId } from '@/components/avatars'
 import { SETTINGS_ID } from './constants'
 import { db } from './db'
 
@@ -8,6 +9,8 @@ export const DEFAULT_SETTINGS: Settings = {
   theme: 'light',
   firstDayOfWeek: 1,
   softInsightsEnabled: true,
+  displayName: '',
+  avatarId: 1,
 }
 
 export const DEFAULT_CATEGORIES: Category[] = [
@@ -39,10 +42,15 @@ export async function seedDatabase(): Promise<void> {
         typeof existingSettings.softInsightsEnabled === 'boolean'
           ? existingSettings.softInsightsEnabled
           : true,
+      displayName:
+        typeof existingSettings.displayName === 'string' ? existingSettings.displayName : '',
+      avatarId: isAvatarId(existingSettings.avatarId) ? existingSettings.avatarId : 1,
     }
     if (
       existingSettings.theme !== next.theme ||
-      existingSettings.softInsightsEnabled !== next.softInsightsEnabled
+      existingSettings.softInsightsEnabled !== next.softInsightsEnabled ||
+      existingSettings.displayName !== next.displayName ||
+      existingSettings.avatarId !== next.avatarId
     ) {
       await db.settings.put(next)
     }

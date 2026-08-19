@@ -141,7 +141,21 @@ export function BackupPage() {
       </section>
 
       <section className="space-y-3 rounded-2xl border border-blue-100 bg-white p-4">
-        <h2 className="text-sm font-semibold text-slate-900">Import</h2>
+        <h2 className="text-sm font-semibold text-slate-900">Bank statement CSV</h2>
+        <p className="text-sm leading-relaxed text-slate-500">
+          Add transactions from HDFC, SBI, ICICI, Axis, Kotak, or a generic CSV. You preview
+          rows first. This does not replace existing data.
+        </p>
+        <Link
+          to="/settings/import"
+          className="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-[opacity,transform] hover:opacity-90 active:scale-[0.97]"
+        >
+          Import bank CSV
+        </Link>
+      </section>
+
+      <section className="space-y-3 rounded-2xl border border-blue-100 bg-white p-4">
+        <h2 className="text-sm font-semibold text-slate-900">Restore JSON</h2>
         <p className="text-sm leading-relaxed text-slate-500">
           Restore a JSON backup. This replaces everything currently stored in this browser.
         </p>
@@ -176,8 +190,9 @@ export function BackupPage() {
       ) : null}
 
       <p className="text-xs leading-relaxed text-slate-400">
-        Nothing is uploaded. Keep JSON backups somewhere safe if you switch browsers or clear
-        site data.
+        Nothing is uploaded. Bank CSV import adds transactions. JSON restore replaces
+        everything. Keep JSON backups somewhere safe if you switch browsers or clear site
+        data.
       </p>
 
       {pendingFile ? (

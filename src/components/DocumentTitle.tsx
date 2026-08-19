@@ -11,6 +11,7 @@ function titleFor(pathname: string): string {
   if (pathname.startsWith('/settings/recurring')) return 'Recurring'
   if (pathname.startsWith('/settings/review')) return 'Monthly review'
   if (pathname.startsWith('/settings/backup')) return 'Export & import'
+  if (pathname.startsWith('/settings/import')) return 'Bank statement CSV'
   if (pathname.startsWith('/settings')) return 'Settings'
   return 'Finance Tracker'
 }

@@ -3,6 +3,7 @@ import type {
   Budget,
   Category,
   Goal,
+  ImportRule,
   MonthlyReview,
   RecurringRule,
   Settings,
@@ -88,6 +89,21 @@ export async function addTransaction(
   }
   await db.transactions.add(transaction)
   return transaction
+}
+
+export async function addTransactions(
+  inputs: Array<Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'> & { id?: string }>,
+): Promise<number> {
+  if (inputs.length === 0) return 0
+  const now = new Date().toISOString()
+  const rows: Transaction[] = inputs.map((input) => ({
+    ...input,
+    id: input.id ?? crypto.randomUUID(),
+    createdAt: now,
+    updatedAt: now,
+  }))
+  await db.transactions.bulkAdd(rows)
+  return rows.length
 }
 
 export async function updateTransaction(
@@ -305,4 +321,36 @@ export async function completeMonthlyReview(input: {
   }
   await db.monthlyReviews.put(review)
   return review
+}
+
+export async function getImportRules(): Promise<ImportRule[]> {
+  return db.importRules.toArray()
+}
+
+export async function upsertImportRules(
+  rules: Array<{ keyword: string; categoryId: string }>,
+): Promise<void> {
+  if (rules.length === 0) return
+  const existing = await db.importRules.toArray()
+  const byKeyword = new Map(existing.map((rule) => [rule.keyword, rule]))
+  const now = new Date().toISOString()
+  const rows: ImportRule[] = []
+
+  for (const rule of rules) {
+    const keyword = rule.keyword.trim()
+    if (!keyword) continue
+    const previous = byKeyword.get(keyword)
+    if (previous) {
+      rows.push({ ...previous, categoryId: rule.categoryId })
+    } else {
+      rows.push({
+        id: crypto.randomUUID(),
+        keyword,
+        categoryId: rule.categoryId,
+        createdAt: now,
+      })
+    }
+  }
+
+  if (rows.length > 0) await db.importRules.bulkPut(rows)
 }

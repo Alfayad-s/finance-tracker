@@ -1,4 +1,5 @@
 import { db } from './db'
+import { DEFAULT_CATEGORIES, DEFAULT_SETTINGS } from './seed'
 import { buildBackup, type BackupFile } from '@/utils/backup'
 
 export async function readBackup(): Promise<BackupFile> {
@@ -37,35 +38,43 @@ export async function readBackup(): Promise<BackupFile> {
 }
 
 export async function restoreBackup(backup: BackupFile): Promise<void> {
-  await db.transaction(
-    'rw',
-    [
-      db.transactions,
-      db.categories,
-      db.budgets,
-      db.goals,
-      db.recurringRules,
-      db.monthlyReviews,
-      db.settings,
-    ],
-    async () => {
-      await Promise.all([
-        db.transactions.clear(),
-        db.categories.clear(),
-        db.budgets.clear(),
-        db.goals.clear(),
-        db.recurringRules.clear(),
-        db.monthlyReviews.clear(),
-        db.settings.clear(),
-      ])
+  await db.transaction('rw', [...ALL_TABLES], async () => {
+    await clearAllTables()
 
-      await db.categories.bulkPut(backup.categories)
-      if (backup.transactions.length > 0) await db.transactions.bulkPut(backup.transactions)
-      if (backup.budgets.length > 0) await db.budgets.bulkPut(backup.budgets)
-      if (backup.goals.length > 0) await db.goals.bulkPut(backup.goals)
-      if (backup.recurringRules.length > 0) await db.recurringRules.bulkPut(backup.recurringRules)
-      if (backup.monthlyReviews.length > 0) await db.monthlyReviews.bulkPut(backup.monthlyReviews)
-      await db.settings.put(backup.settings)
-    },
-  )
+    await db.categories.bulkPut(backup.categories)
+    if (backup.transactions.length > 0) await db.transactions.bulkPut(backup.transactions)
+    if (backup.budgets.length > 0) await db.budgets.bulkPut(backup.budgets)
+    if (backup.goals.length > 0) await db.goals.bulkPut(backup.goals)
+    if (backup.recurringRules.length > 0) await db.recurringRules.bulkPut(backup.recurringRules)
+    if (backup.monthlyReviews.length > 0) await db.monthlyReviews.bulkPut(backup.monthlyReviews)
+    await db.settings.put(backup.settings)
+  })
+}
+
+const ALL_TABLES = [
+  db.transactions,
+  db.categories,
+  db.budgets,
+  db.goals,
+  db.recurringRules,
+  db.monthlyReviews,
+  db.settings,
+  db.importRules,
+] as const
+
+async function clearAllTables() {
+  await Promise.all(ALL_TABLES.map((table) => table.clear()))
+}
+
+export async function resetAppData(): Promise<void> {
+  await db.transaction('rw', [...ALL_TABLES], async () => {
+    await clearAllTables()
+    await db.settings.put(DEFAULT_SETTINGS)
+    await db.categories.bulkPut(DEFAULT_CATEGORIES)
+  })
+  try {
+    localStorage.removeItem('finance-tracker-install-dismissed')
+  } catch {
+    /* private mode */
+  }
 }

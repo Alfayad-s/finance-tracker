@@ -9,6 +9,7 @@ import type {
 } from '@/types'
 import { SETTINGS_ID } from '@/db/constants'
 import { DEFAULT_SETTINGS } from '@/db/seed'
+import { isAvatarId } from '@/components/avatars'
 
 export const BACKUP_APP = 'finance-tracker'
 export const BACKUP_VERSION = 1
@@ -163,6 +164,8 @@ function normalizeSettings(value: unknown): Settings {
       typeof current.softInsightsEnabled === 'boolean'
         ? current.softInsightsEnabled
         : DEFAULT_SETTINGS.softInsightsEnabled,
+    displayName: typeof current.displayName === 'string' ? current.displayName.slice(0, 20) : '',
+    avatarId: isAvatarId(current.avatarId) ? current.avatarId : DEFAULT_SETTINGS.avatarId,
     language: typeof current.language === 'string' ? current.language : undefined,
   }
 }

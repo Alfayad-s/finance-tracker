@@ -87,6 +87,7 @@ No accounts, no cloud, no tracking — just a fast and beautiful tool to track i
 - [x] Monthly Review ritual (guided end-of-month flow)
 - [x] Export (CSV + JSON)
 - [x] Import (JSON)
+- [x] Smart CSV bank statement import (manual file, on-device)
 - [x] Receipt photo attachment (stored locally)
 - [x] Empty states & micro-interactions
 - [x] Accessibility improvements
@@ -96,7 +97,7 @@ No accounts, no cloud, no tracking — just a fast and beautiful tool to track i
 
 ### 3.4 Explicitly Out of Scope
 
-- Bank / SMS auto-import
+- Bank / SMS auto-import (manual CSV file import is supported; no bank login or SMS)
 - Cloud sync
 - Multi-user / sharing
 - Investment tracking
@@ -279,7 +280,7 @@ interface Settings {
 - Settings
 - Category Management
 - Monthly Review
-- Export / Import
+- Export / Import (JSON backup, CSV export, bank statement CSV import)
 - About / Privacy
 
 ---
@@ -397,7 +398,7 @@ This gives the best balance between automatic updates and user control.
 **Goal:** Make it feel premium
 
 - Monthly Review guided flow
-- Export (CSV + JSON) & Import
+- Export (CSV + JSON) & Import (JSON restore + bank CSV append)
 - Receipt photo support
 - Micro-interactions & empty states
 - Accessibility audit
@@ -444,7 +445,7 @@ This gives the best balance between automatic updates and user control.
 - No server, no analytics, no third-party trackers
 - All data stored in browser IndexedDB
 - Optional local PIN lock can be added later (Phase 3+)
-- Export/Import is user-controlled (JSON file)
+- Export/Import is user-controlled (JSON backup, CSV export, bank statement CSV import on-device)
 - Receipt photos stored only on device
 
 ---

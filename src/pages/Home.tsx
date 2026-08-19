@@ -8,6 +8,7 @@ import { SpendingTrendChart } from '@/components/charts/SpendingTrendChart'
 import { SoftInsight } from '@/components/SoftInsight'
 import { InstallBanner } from '@/components/InstallApp'
 import { BalanceCard } from '@/components/BalanceCard'
+import { AvatarFace, isAvatarId } from '@/components/avatars'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Loader } from '@/components/ui/Loader'
 import { TransactionDetail } from '@/components/TransactionDetail'
@@ -66,6 +67,8 @@ export function Home() {
 
   const currency = settings.currency
   const monthLabel = formatMonthTitle(month)
+  const displayName = settings.displayName.trim()
+  const avatarId = isAvatarId(settings.avatarId) ? settings.avatarId : 1
   const selected = selectedId
     ? transactions.find((transaction) => transaction.id === selectedId)
     : undefined
@@ -87,11 +90,27 @@ export function Home() {
   return (
     <section className="space-y-6">
       <header className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm text-slate-500">{greeting()}</p>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900">
-            {monthLabel}
-          </h1>
+        <div className="flex min-w-0 items-start gap-3">
+          <Link
+            to="/settings"
+            aria-label="Edit profile"
+            className="relative mt-0.5 size-11 shrink-0 overflow-hidden rounded-full ring-2 ring-blue-100"
+          >
+            <span className="absolute inset-0 flex items-center justify-center">
+              <span className="scale-[1.1]">
+                <AvatarFace id={avatarId} />
+              </span>
+            </span>
+          </Link>
+          <div className="min-w-0">
+            <p className="text-sm text-slate-500">
+              {greeting()}
+              {displayName ? `, ${displayName}` : ''}
+            </p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900">
+              {monthLabel}
+            </h1>
+          </div>
         </div>
         <Link
           to="/settings"
@@ -108,6 +127,7 @@ export function Home() {
         balance={overview.all.net}
         currency={currency}
         month={month}
+        holder={displayName || 'This device'}
       />
 
       {pendingReview ? (

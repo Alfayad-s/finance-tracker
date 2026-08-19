@@ -1,9 +1,15 @@
+import { useState } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { resetAppData } from '@/db/backup'
 import { useSettings } from '@/db/hooks'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { Loader } from '@/components/ui/Loader'
+import { Button } from '@/components/ui/Button'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { InstallSettingsRow } from '@/components/InstallApp'
+import { ProfileEditor } from '@/components/ProfileEditor'
+import { isAvatarId } from '@/components/avatars'
 import { cn } from '@/lib/utils'
 import { CURRENCIES } from '@/utils/currency'
 import type { FirstDayOfWeek } from '@/types'
@@ -11,6 +17,10 @@ import type { FirstDayOfWeek } from '@/types'
 export function SettingsPage() {
   const settings = useSettings()
   const updateSettings = useSettingsStore((store) => store.updateSettings)
+  const hydrate = useSettingsStore((store) => store.hydrate)
+  const [confirmReset, setConfirmReset] = useState(false)
+  const [resetting, setResetting] = useState(false)
+  const [resetError, setResetError] = useState<string | null>(null)
 
   if (!settings) {
     return (
@@ -33,6 +43,16 @@ export function SettingsPage() {
           Everything stays on this device. No account, no cloud.
         </p>
       </header>
+
+      <section className="rounded-2xl border border-blue-100 bg-white p-5">
+        <h2 className="text-sm font-semibold text-slate-900">Profile</h2>
+        <p className="mt-1 mb-5 text-sm text-slate-500">Name and avatar stay on this device</p>
+        <ProfileEditor
+          name={settings.displayName}
+          avatarId={isAvatarId(settings.avatarId) ? settings.avatarId : 1}
+          onSave={(data) => updateSettings(data)}
+        />
+      </section>
 
       <section className="overflow-hidden rounded-2xl border border-blue-100 bg-white">
         <h2 className="px-4 pt-4 text-sm font-semibold text-slate-900">Preferences</h2>
@@ -134,6 +154,23 @@ export function SettingsPage() {
         </Link>
       </section>
 
+      <section className="rounded-2xl border border-red-100 bg-white px-4 py-4">
+        <h2 className="text-sm font-semibold text-slate-900">Reset</h2>
+        <p className="mt-2 text-sm leading-relaxed text-slate-500">
+          Delete every transaction, budget, goal, receipt, and setting on this
+          device. Built-in categories come back. This cannot be undone.
+        </p>
+        <Button
+          className="mt-4 w-full bg-red-600"
+          onClick={() => {
+            setResetError(null)
+            setConfirmReset(true)
+          }}
+        >
+          Reset app
+        </Button>
+      </section>
+
       <section className="rounded-2xl border border-blue-100 bg-white px-4 py-4">
         <h2 className="text-sm font-semibold text-slate-900">Privacy</h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-500">
@@ -143,6 +180,38 @@ export function SettingsPage() {
         </p>
         <p className="mt-3 text-xs text-slate-400">Version 0.1.0</p>
       </section>
+
+      {confirmReset ? (
+        <ConfirmDialog
+          title="Reset this app?"
+          description="All money data on this device will be deleted. Export a backup first if you might want it later."
+          confirmLabel="Reset everything"
+          busyLabel="Resetting…"
+          busy={resetting}
+          danger
+          error={resetError}
+          onCancel={() => {
+            if (!resetting) setConfirmReset(false)
+          }}
+          onConfirm={() => {
+            void (async () => {
+              setResetting(true)
+              setResetError(null)
+              try {
+                await resetAppData()
+                await hydrate()
+                setConfirmReset(false)
+              } catch (caught) {
+                setResetError(
+                  caught instanceof Error ? caught.message : 'Could not reset this app',
+                )
+              } finally {
+                setResetting(false)
+              }
+            })()
+          }}
+        />
+      ) : null}
     </section>
   )
 }

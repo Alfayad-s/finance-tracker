@@ -75,5 +75,14 @@ export interface Settings {
   theme: Theme
   firstDayOfWeek: FirstDayOfWeek
   softInsightsEnabled: boolean
+  displayName: string
+  avatarId: number
   language?: string
+}
+
+export interface ImportRule {
+  id: string
+  keyword: string
+  categoryId: string
+  createdAt: string
 }
