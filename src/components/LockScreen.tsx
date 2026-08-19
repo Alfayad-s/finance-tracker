@@ -116,17 +116,6 @@ export function LockScreen() {
               ? 'Use Face ID, fingerprint, or your PIN'
               : 'Enter your PIN to open Finance Tracker'}
           </p>
-          {biometricEnabled ? (
-            <Button
-              className="mt-6 px-4"
-              disabled={busy || coolingDown || confirmReset}
-              onClick={() => {
-                void tryBiometric()
-              }}
-            >
-              Unlock with this device
-            </Button>
-          ) : null}
           <div className="mt-8">
             <PinDots filled={pin.length} error={Boolean(error)} />
           </div>
@@ -145,16 +134,29 @@ export function LockScreen() {
             />
           </div>
         </div>
-        <button
-          type="button"
-          className="mt-6 text-sm text-slate-500 hover:text-slate-800"
-          onClick={() => {
-            setResetError(null)
-            setConfirmReset(true)
-          }}
-        >
-          Forgot PIN?
-        </button>
+        <div className="mt-6 flex flex-col items-center gap-3">
+          {biometricEnabled ? (
+            <Button
+              className="w-full"
+              disabled={busy || coolingDown || confirmReset}
+              onClick={() => {
+                void tryBiometric()
+              }}
+            >
+              Unlock with this device
+            </Button>
+          ) : null}
+          <button
+            type="button"
+            className="text-sm text-slate-500 hover:text-slate-800"
+            onClick={() => {
+              setResetError(null)
+              setConfirmReset(true)
+            }}
+          >
+            Forgot PIN?
+          </button>
+        </div>
       </div>
       {confirmReset ? (
         <ConfirmDialog

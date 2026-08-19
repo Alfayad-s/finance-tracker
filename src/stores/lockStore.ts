@@ -14,6 +14,24 @@ import {
 
 const FAIL_LIMIT = 5
 const COOLDOWN_MS = 15_000
+const UNLOCKED_KEY = 'finance-tracker-unlocked'
+
+function readSessionUnlocked() {
+  try {
+    return sessionStorage.getItem(UNLOCKED_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+function writeSessionUnlocked(unlocked: boolean) {
+  try {
+    if (unlocked) sessionStorage.setItem(UNLOCKED_KEY, '1')
+    else sessionStorage.removeItem(UNLOCKED_KEY)
+  } catch {
+    /* private mode */
+  }
+}
 
 function hasPinLock(settings: Settings | null | undefined) {
   return Boolean(settings?.pinHash && settings?.pinSalt)
@@ -63,9 +81,10 @@ export const useLockStore = create<LockStore>((set, get) => ({
   lockedUntil: null,
 
   initFromSettings: (settings) => {
+    const enabled = hasPinLock(settings)
     set({
       ...applyLockFlags(settings),
-      unlocked: !hasPinLock(settings),
+      unlocked: !enabled || readSessionUnlocked(),
       failedAttempts: 0,
       lockedUntil: null,
     })
@@ -83,6 +102,7 @@ export const useLockStore = create<LockStore>((set, get) => ({
 
   lock: () => {
     if (!get().enabled) return
+    writeSessionUnlocked(false)
     usePrivacyStore.getState().hidePeek()
     set({ unlocked: false })
   },
@@ -98,6 +118,7 @@ export const useLockStore = create<LockStore>((set, get) => ({
 
     const settings = await readSettings()
     if (!hasPinLock(settings) || !settings.pinHash || !settings.pinSalt) {
+      writeSessionUnlocked(false)
       set({
         enabled: false,
         biometricEnabled: false,
@@ -110,6 +131,7 @@ export const useLockStore = create<LockStore>((set, get) => ({
 
     const ok = await pinsMatch(pin, settings.pinSalt, settings.pinHash)
     if (ok) {
+      writeSessionUnlocked(true)
       set({ unlocked: true, failedAttempts: 0, lockedUntil: null })
       return true
     }
@@ -130,6 +152,7 @@ export const useLockStore = create<LockStore>((set, get) => ({
     try {
       const ok = await verifyPlatformCredential(settings.webauthnCredentialId, signal)
       if (!ok) return 'fail'
+      writeSessionUnlocked(true)
       set({ unlocked: true, failedAttempts: 0, lockedUntil: null })
       return 'ok'
     } catch (error) {
@@ -141,6 +164,7 @@ export const useLockStore = create<LockStore>((set, get) => ({
   enable: async (pin) => {
     const hashed = await hashPin(pin)
     const next = await putSettings({ pinHash: hashed.hash, pinSalt: hashed.salt })
+    writeSessionUnlocked(true)
     set({
       enabled: true,
       biometricEnabled: hasBiometric(next),
@@ -162,6 +186,7 @@ export const useLockStore = create<LockStore>((set, get) => ({
     }
     const hashed = await hashPin(nextPin)
     const next = await putSettings({ pinHash: hashed.hash, pinSalt: hashed.salt })
+    writeSessionUnlocked(true)
     set({ enabled: true, unlocked: true, failedAttempts: 0, lockedUntil: null })
     return next
   },
@@ -169,6 +194,7 @@ export const useLockStore = create<LockStore>((set, get) => ({
   disable: async (pin) => {
     const settings = await readSettings()
     if (!settings.pinHash || !settings.pinSalt) {
+      writeSessionUnlocked(false)
       set({ enabled: false, biometricEnabled: false, unlocked: true })
       return settings
     }
@@ -180,6 +206,7 @@ export const useLockStore = create<LockStore>((set, get) => ({
     delete next.pinSalt
     delete next.webauthnCredentialId
     await db.settings.put(next)
+    writeSessionUnlocked(false)
     set({
       enabled: false,
       biometricEnabled: false,

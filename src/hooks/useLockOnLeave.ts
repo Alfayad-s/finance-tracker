@@ -5,17 +5,19 @@ export function useLockOnLeave() {
   const lock = useLockStore((store) => store.lock)
 
   useEffect(() => {
-    const hide = () => {
+    let left = false
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') {
+        left = true
+        return
+      }
+      if (!left) return
+      left = false
       if (useLockStore.getState().enabled) lock()
     }
-    const onVisibility = () => {
-      if (document.visibilityState === 'hidden') hide()
-    }
     document.addEventListener('visibilitychange', onVisibility)
-    window.addEventListener('pagehide', hide)
     return () => {
       document.removeEventListener('visibilitychange', onVisibility)
-      window.removeEventListener('pagehide', hide)
     }
   }, [lock])
 }
