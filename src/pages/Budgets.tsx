@@ -394,7 +394,7 @@ function BudgetEditor({
               <select
                 value={selectedId ?? ''}
                 onChange={(event) => onCategoryChange(event.target.value)}
-                className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600"
+                className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none"
               >
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
@@ -412,7 +412,7 @@ function BudgetEditor({
               value={amount}
               onChange={(event) => onAmountChange(event.target.value)}
               placeholder={formatCurrency(0, currency).replace(/[\d.,]/g, '').trim() || '0'}
-              className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-lg font-semibold text-slate-900 outline-none focus:border-blue-600"
+              className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-lg font-semibold text-slate-900 outline-none"
             />
           </label>
 

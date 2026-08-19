@@ -302,7 +302,7 @@ export function TransactionForm({
                     type="date"
                     max={todayISO()}
                     {...register('date', { required: true })}
-                    className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none focus:border-blue-600"
+                    className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none"
                   />
                 </label>
 
@@ -358,7 +358,7 @@ export function TransactionForm({
                   <span className="text-sm font-medium text-slate-700">Repeat</span>
                   <select
                     {...register('frequency')}
-                    className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none focus:border-blue-600"
+                    className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none"
                   >
                     <option value="none">Does not repeat</option>
                     {RECURRING_FREQUENCIES.map((frequency) => (
@@ -376,7 +376,7 @@ export function TransactionForm({
                     placeholder="Optional"
                     maxLength={80}
                     {...register('note')}
-                    className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-600"
+                    className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none placeholder:text-slate-400"
                   />
                 </label>
 

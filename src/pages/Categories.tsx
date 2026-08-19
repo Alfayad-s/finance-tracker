@@ -317,7 +317,7 @@ function CategoryEditor({
               onChange={(event) => setDraft({ ...draft, name: event.target.value })}
               maxLength={24}
               placeholder="Groceries"
-              className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none focus:border-blue-600"
+              className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none"
             />
           </label>
 

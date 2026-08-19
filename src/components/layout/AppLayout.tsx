@@ -11,6 +11,8 @@ export function AppLayout() {
   const [quickAddOpen, setQuickAddOpen] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const dismissToast = useCallback(() => setToast(null), [])
+  const closeQuickAdd = useCallback(() => setQuickAddOpen(false), [])
+  const openQuickAdd = useCallback(() => setQuickAddOpen(true), [])
 
   useEffect(() => {
     const refresh = () => {
@@ -45,10 +47,10 @@ export function AppLayout() {
           <Outlet />
         </motion.div>
       </main>
-      <BottomNav onAdd={() => setQuickAddOpen(true)} />
+      <BottomNav onAdd={openQuickAdd} />
       <TransactionForm
         open={quickAddOpen}
-        onClose={() => setQuickAddOpen(false)}
+        onClose={closeQuickAdd}
         onSaved={(message) => {
           setQuickAddOpen(false)
           setToast(message)

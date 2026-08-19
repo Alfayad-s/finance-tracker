@@ -393,7 +393,7 @@ function RuleEditor({
               onChange={(event) => setDraft({ ...draft, amount: event.target.value })}
               inputMode="decimal"
               placeholder="0"
-              className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none focus:border-blue-600"
+              className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none"
             />
           </label>
 
@@ -402,7 +402,7 @@ function RuleEditor({
             <select
               value={draft.categoryId}
               onChange={(event) => setDraft({ ...draft, categoryId: event.target.value })}
-              className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none focus:border-blue-600"
+              className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none"
             >
               {visibleCategories.map((category) => (
                 <option key={category.id} value={category.id}>
@@ -419,7 +419,7 @@ function RuleEditor({
               onChange={(event) =>
                 setDraft({ ...draft, frequency: event.target.value as RecurringFrequency })
               }
-              className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none focus:border-blue-600"
+              className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none"
             >
               {RECURRING_FREQUENCIES.map((frequency) => (
                 <option key={frequency} value={frequency}>
@@ -436,7 +436,7 @@ function RuleEditor({
               value={draft.startDate}
               disabled={startLocked}
               onChange={(event) => setDraft({ ...draft, startDate: event.target.value })}
-              className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none focus:border-blue-600 disabled:text-slate-400"
+              className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none disabled:text-slate-400"
             />
           </label>
 
@@ -447,7 +447,7 @@ function RuleEditor({
               value={draft.endDate}
               min={draft.startDate}
               onChange={(event) => setDraft({ ...draft, endDate: event.target.value })}
-              className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none focus:border-blue-600"
+              className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none"
             />
           </label>
 
@@ -458,7 +458,7 @@ function RuleEditor({
               onChange={(event) => setDraft({ ...draft, note: event.target.value })}
               maxLength={80}
               placeholder="Optional"
-              className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-600"
+              className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none placeholder:text-slate-400"
             />
           </label>
 

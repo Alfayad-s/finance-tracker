@@ -63,7 +63,7 @@ export function SettingsPage() {
             onChange={(event) => {
               void updateSettings({ currency: event.target.value })
             }}
-            className="max-w-[60%] rounded-xl border border-blue-100 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600"
+            className="max-w-[60%] rounded-xl border border-blue-100 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none"
           >
             {CURRENCIES.map((currency) => (
               <option key={currency.code} value={currency.code}>
@@ -81,7 +81,7 @@ export function SettingsPage() {
                 firstDayOfWeek: Number(event.target.value) as FirstDayOfWeek,
               })
             }}
-            className="rounded-xl border border-blue-100 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600"
+            className="rounded-xl border border-blue-100 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none"
           >
             <option value={1}>Monday</option>
             <option value={0}>Sunday</option>

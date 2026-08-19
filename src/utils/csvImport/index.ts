@@ -9,7 +9,9 @@ export {
   mappingFromPreset,
   mappingIsComplete,
   prepareCsv,
+  prepareRows,
 } from './presets'
+export { parseStatementFile, isPdfFile, PdfPasswordError } from './parseStatement'
 export { buildPreviewRows } from './preview'
 export type { PreviewRow } from './preview'
 export { EMPTY_MAPPING, MAPPING_ROLES } from './types'

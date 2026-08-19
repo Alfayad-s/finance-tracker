@@ -364,7 +364,7 @@ function GoalDetail({
             value={fundAmount}
             onChange={(event) => onFundAmountChange(event.target.value)}
             placeholder="0"
-            className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-lg font-semibold text-slate-900 outline-none focus:border-blue-600"
+            className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-lg font-semibold text-slate-900 outline-none"
           />
         </label>
 
@@ -475,7 +475,7 @@ function GoalEditor({
               onChange={(event) => setDraft({ ...draft, name: event.target.value })}
               maxLength={32}
               placeholder="Emergency fund"
-              className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none focus:border-blue-600"
+              className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none"
             />
           </label>
 
@@ -486,7 +486,7 @@ function GoalEditor({
               value={draft.targetAmount}
               onChange={(event) => setDraft({ ...draft, targetAmount: event.target.value })}
               placeholder="0"
-              className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-lg font-semibold text-slate-900 outline-none focus:border-blue-600"
+              className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-lg font-semibold text-slate-900 outline-none"
             />
           </label>
 
@@ -497,7 +497,7 @@ function GoalEditor({
               min={todayISO()}
               value={draft.deadline}
               onChange={(event) => setDraft({ ...draft, deadline: event.target.value })}
-              className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none focus:border-blue-600"
+              className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none"
             />
           </label>
 

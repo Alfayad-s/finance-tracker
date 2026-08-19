@@ -18,11 +18,12 @@ import { formatDisplayDate } from '@/utils/date'
 import {
   BANK_PRESETS,
   MAPPING_ROLES,
+  PdfPasswordError,
   buildPreviewRows,
   mappingFromPreset,
   mappingIsComplete,
   mapStatementRows,
-  prepareCsv,
+  parseStatementFile,
   suggestCategoryId,
   type BankPresetId,
   type ColumnMapping,
@@ -32,7 +33,7 @@ import {
 import type { Category, ImportRule, TransactionType } from '@/types'
 
 const PAGE_SIZE = 100
-const MAX_FILE_BYTES = 8 * 1024 * 1024
+const MAX_FILE_BYTES = 12 * 1024 * 1024
 
 export function CsvImportPage() {
   const categories = useCategories()
@@ -53,6 +54,8 @@ export function CsvImportPage() {
   const [confirm, setConfirm] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
+  const [password, setPassword] = useState('')
 
   const currency = settings?.currency ?? 'INR'
   const mappingReady = mapping ? mappingIsComplete(mapping) : false
@@ -78,17 +81,17 @@ export function CsvImportPage() {
   const allCategories = categories
   const allTransactions = transactions
 
-  async function onFile(file: File | undefined) {
+  async function onFile(file: File | undefined, unlockPassword?: string) {
     setError(null)
     setMessage(null)
     if (!file) return
     if (file.size > MAX_FILE_BYTES) {
-      setError('That file is larger than 8 MB')
+      setError('That file is larger than 12 MB')
       return
     }
+    setBusy(true)
     try {
-      const text = await file.text()
-      const prepared = prepareCsv(text, file.name)
+      const prepared = await parseStatementFile(file, unlockPassword || undefined)
       pinnedRef.current = new Set()
       setFileName(file.name)
       setCsv(prepared.csv)
@@ -96,13 +99,24 @@ export function CsvImportPage() {
       setMapping(prepared.mapping)
       setPreview([])
       setPage(0)
+      setPendingFile(null)
+      setPassword('')
       setStep('map')
     } catch (caught) {
+      if (caught instanceof PdfPasswordError) {
+        setPendingFile(file)
+        setStep('pick')
+        setError(caught.message)
+        if (caught.incorrect) setPassword('')
+        return
+      }
       setCsv(null)
       setMapping(null)
+      setPendingFile(null)
       setStep('pick')
-      setError(caught instanceof Error ? caught.message : 'Could not read that CSV')
+      setError(caught instanceof Error ? caught.message : 'Could not read that file')
     } finally {
+      setBusy(false)
       if (fileRef.current) fileRef.current.value = ''
     }
   }
@@ -245,7 +259,7 @@ export function CsvImportPage() {
         </Link>
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
-            Bank statement CSV
+            Bank statement import
           </h1>
           <p className="text-sm text-slate-500">Adds transactions. Nothing is uploaded.</p>
         </div>
@@ -254,20 +268,45 @@ export function CsvImportPage() {
       {step === 'pick' ? (
         <section className="space-y-3 rounded-2xl border border-blue-100 bg-white p-4">
           <p className="text-sm leading-relaxed text-slate-500">
-            Choose a CSV from HDFC, SBI, ICICI, Axis, Kotak, or any statement with date and
-            amount columns. Existing transactions stay as they are.
+            Choose a CSV or PDF from HDFC, SBI, ICICI, Axis, Kotak, or any statement with date
+            and amount columns. Existing transactions stay as they are.
           </p>
           <input
             ref={fileRef}
             type="file"
-            accept=".csv,text/csv,text/plain"
+            accept=".csv,.pdf,text/csv,text/plain,application/pdf"
             className="sr-only"
-            aria-label="Bank statement CSV"
+            aria-label="Bank statement CSV or PDF"
             onChange={(event) => void onFile(event.target.files?.[0])}
           />
-          <Button className="w-full" onClick={() => fileRef.current?.click()}>
-            Choose CSV file
+          <Button className="w-full" disabled={busy} onClick={() => fileRef.current?.click()}>
+            {busy ? 'Reading…' : 'Choose CSV or PDF'}
           </Button>
+          {pendingFile ? (
+            <form
+              className="space-y-3 rounded-xl bg-slate-50 p-3"
+              onSubmit={(event) => {
+                event.preventDefault()
+                void onFile(pendingFile, password)
+              }}
+            >
+              <p className="text-sm text-slate-600">
+                Unlock <span className="font-medium text-slate-800">{pendingFile.name}</span>
+              </p>
+              <input
+                type="password"
+                value={password}
+                autoComplete="off"
+                placeholder="Statement password"
+                aria-label="PDF password"
+                onChange={(event) => setPassword(event.target.value)}
+                className="w-full rounded-xl border border-blue-100 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-400"
+              />
+              <Button type="submit" className="w-full" disabled={busy || !password.trim()}>
+                {busy ? 'Unlocking…' : 'Unlock PDF'}
+              </Button>
+            </form>
+          ) : null}
         </section>
       ) : null}
 
@@ -281,7 +320,7 @@ export function CsvImportPage() {
             <select
               value={presetId}
               onChange={(event) => changePreset(event.target.value as BankPresetId)}
-              className="max-w-[60%] rounded-xl border border-blue-100 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600"
+              className="max-w-[60%] rounded-xl border border-blue-100 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none"
             >
               {BANK_PRESETS.map((preset) => (
                 <option key={preset.id} value={preset.id}>
@@ -296,7 +335,7 @@ export function CsvImportPage() {
               <select
                 value={mapping[role.key] ?? ''}
                 onChange={(event) => changeRole(role.key, event.target.value)}
-                className="max-w-[60%] rounded-xl border border-blue-100 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600"
+                className="max-w-[60%] rounded-xl border border-blue-100 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none"
               >
                 <option value="">—</option>
                 {csv.headers.map((header, index) => (
@@ -414,8 +453,9 @@ export function CsvImportPage() {
       ) : null}
 
       <p className="text-xs leading-relaxed text-slate-400">
-        Statements stay on this device. JSON restore on the previous screen still replaces
-        everything; this import only appends.
+        Statements stay on this device. PDF text statements work; scanned image PDFs do not.
+        JSON restore on the previous screen still replaces everything; this import only
+        appends.
       </p>
 
       {confirm ? (
@@ -485,7 +525,7 @@ function PreviewItem({
                 value={row.type}
                 aria-label="Type"
                 onChange={(event) => onType(row.id, event.target.value as TransactionType)}
-                className="rounded-xl border border-blue-100 bg-slate-50 px-2 py-2 text-sm text-slate-900 outline-none focus:border-blue-600"
+                className="rounded-xl border border-blue-100 bg-slate-50 px-2 py-2 text-sm text-slate-900 outline-none"
               >
                 <option value="expense">Expense</option>
                 <option value="income">Income</option>
@@ -494,7 +534,7 @@ function PreviewItem({
                 value={row.categoryId}
                 aria-label="Category"
                 onChange={(event) => onCategory(row.id, event.target.value)}
-                className="rounded-xl border border-blue-100 bg-slate-50 px-2 py-2 text-sm text-slate-900 outline-none focus:border-blue-600"
+                className="rounded-xl border border-blue-100 bg-slate-50 px-2 py-2 text-sm text-slate-900 outline-none"
               >
                 {typeCategories.map((category) => (
                   <option key={category.id} value={category.id}>

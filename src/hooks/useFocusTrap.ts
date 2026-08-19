@@ -1,4 +1,4 @@
-import { useEffect, type RefObject } from 'react'
+import { useEffect, useRef, type RefObject } from 'react'
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -8,6 +8,9 @@ export function useFocusTrap(
   onClose: () => void,
   containerRef: RefObject<HTMLElement | null>,
 ) {
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
+
   useEffect(() => {
     if (!active) return
     const node = containerRef.current
@@ -22,7 +25,8 @@ export function useFocusTrap(
         (element) => element.getAttribute('aria-hidden') !== 'true',
       )
 
-    window.requestAnimationFrame(() => {
+    const frame = window.requestAnimationFrame(() => {
+      if (node.contains(document.activeElement)) return
       const items = getFocusable()
       ;(items[0] ?? node).focus()
     })
@@ -30,7 +34,7 @@ export function useFocusTrap(
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault()
-        onClose()
+        onCloseRef.current()
         return
       }
       if (event.key !== 'Tab') return
@@ -53,9 +57,10 @@ export function useFocusTrap(
 
     document.addEventListener('keydown', onKeyDown)
     return () => {
+      window.cancelAnimationFrame(frame)
       document.removeEventListener('keydown', onKeyDown)
       document.body.style.overflow = previousOverflow
-      previous?.focus()
+      if (previous && document.body.contains(previous)) previous.focus()
     }
-  }, [active, onClose, containerRef])
+  }, [active, containerRef])
 }

@@ -255,7 +255,7 @@ function ReviewFlow({ month }: { month: string }) {
                   maxLength={280}
                   rows={5}
                   placeholder="Anything you want to remember about this month"
-                  className="w-full resize-none rounded-2xl border border-blue-100 bg-slate-50 px-3 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-600"
+                  className="w-full resize-none rounded-2xl border border-blue-100 bg-slate-50 px-3 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400"
                 />
                 <p className="text-right text-xs text-slate-400">{noteValue.length}/280</p>
               </div>

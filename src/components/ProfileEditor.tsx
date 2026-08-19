@@ -156,7 +156,7 @@ export function ProfileEditor({
             aria-invalid={showError}
             aria-describedby={showError ? 'profile-name-error' : undefined}
             className={cn(
-              'h-11 w-full rounded-xl border bg-slate-50 pr-3 pl-9 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-600',
+              'h-11 w-full rounded-xl border bg-slate-50 pr-3 pl-9 text-sm text-slate-900 outline-none placeholder:text-slate-400',
               showError ? 'border-red-300' : 'border-blue-100',
             )}
           />

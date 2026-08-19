@@ -113,7 +113,7 @@ export function Transactions() {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search notes, categories, amounts"
-          className="w-full rounded-2xl border border-blue-100 bg-slate-50 py-2.5 pr-10 pl-10 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-600"
+          className="w-full rounded-2xl border border-blue-100 bg-slate-50 py-2.5 pr-10 pl-10 text-sm text-slate-900 outline-none placeholder:text-slate-400"
         />
         {query ? (
           <button
@@ -152,7 +152,7 @@ export function Transactions() {
           <select
             value={month}
             onChange={(event) => setMonth(event.target.value)}
-            className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600"
+            className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none"
           >
             <option value="all">All time</option>
             <option value={thisMonth}>This month · {formatMonthTitle(thisMonth)}</option>
@@ -164,7 +164,7 @@ export function Transactions() {
           <select
             value={effectiveCategoryId}
             onChange={(event) => setCategoryId(event.target.value)}
-            className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600"
+            className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none"
           >
             <option value="all">All categories</option>
             {categoryOptions.map((category) => (

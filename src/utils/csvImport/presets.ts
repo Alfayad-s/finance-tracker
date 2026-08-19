@@ -163,13 +163,26 @@ const PRESETS: PresetDef[] = [
   },
 ]
 
-export function prepareCsv(text: string, filename = ''): {
+export function prepareCsv(text: string, filename = '', contentHint?: BankPresetId | null): {
   csv: ParsedCsv
   presetId: BankPresetId
   mapping: ColumnMapping
 } {
   const { rows, delimiter } = parseCsvText(text)
-  const { headerRowIndex, presetId } = locateHeader(rows, filename)
+  return prepareRows(rows, filename, delimiter, contentHint)
+}
+
+export function prepareRows(
+  rows: string[][],
+  filename = '',
+  delimiter = ',',
+  contentHint?: BankPresetId | null,
+): {
+  csv: ParsedCsv
+  presetId: BankPresetId
+  mapping: ColumnMapping
+} {
+  const { headerRowIndex, presetId } = locateHeader(rows, filename, contentHint)
   const headers = rows[headerRowIndex] ?? []
   const dataRows = rows.slice(headerRowIndex + 1).filter((row) => row.some((cell) => cell !== ''))
   const csv: ParsedCsv = { delimiter, headerRowIndex, headers, rows: dataRows }
@@ -222,8 +235,9 @@ function mappingFromGeneric(headers: string[]): ColumnMapping {
 function locateHeader(
   rows: string[][],
   filename: string,
+  contentHint?: BankPresetId | null,
 ): { headerRowIndex: number; presetId: BankPresetId } {
-  const hint = hintFromFilename(filename)
+  const hint = hintFromFilename(filename) ?? contentHint ?? null
   let best: { index: number; presetId: BankPresetId; score: number } | null = null
   const scan = Math.min(rows.length, 40)
 
