@@ -36,7 +36,6 @@ export function Home() {
 
   const overview = useMemo(() => {
     if (!transactions || !categories) return null
-    const all = totalsFor(transactions)
     const monthly = transactionsInMonth(transactions, month)
     const monthTotals = totalsFor(monthly)
     const breakdown = categoryBreakdown(monthly, categories, 'expense')
@@ -44,7 +43,6 @@ export function Home() {
     const overallBudget = (budgets ?? []).find((budget) => budget.categoryId === null)
 
     return {
-      all,
       monthTotals,
       breakdown,
       trend,
@@ -124,7 +122,7 @@ export function Home() {
       <InstallBanner />
 
       <BalanceCard
-        balance={overview.all.net}
+        balance={overview.monthTotals.net}
         currency={currency}
         month={month}
         holder={displayName || 'This device'}

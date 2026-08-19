@@ -37,7 +37,7 @@ export function BalanceCard({
             </p>
           </div>
           <p className="mt-3 text-[11px] tracking-[0.16em] text-neutral-400 uppercase">
-            Balance
+            This month
           </p>
         </div>
         <ContactlessIcon className="mt-0.5 size-7 text-neutral-400" />

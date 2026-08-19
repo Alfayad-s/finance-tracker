@@ -294,7 +294,9 @@ export function CsvImportPage() {
               <img
                 src="/social-icons/supermoney-logo.png"
                 alt=""
-                className="size-12 shrink-0 rounded-xl"
+                width={300}
+                height={300}
+                className="size-12 shrink-0 object-contain"
               />
               <span className="min-w-0">
                 <span className="block text-sm font-semibold text-slate-900">SuperMoney</span>
