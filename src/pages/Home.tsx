@@ -124,7 +124,7 @@ export function Home() {
       <header className="flex items-start justify-between gap-4">
         <div className="flex min-w-0 items-start gap-3">
           <Link
-            to="/settings"
+            to="/settings/profile"
             aria-label="Edit profile"
             className="relative mt-0.5 size-11 shrink-0 overflow-hidden rounded-full ring-2 ring-blue-100"
           >

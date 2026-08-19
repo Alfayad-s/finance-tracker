@@ -26,6 +26,10 @@ const SettingsPage = lazy(async () => {
   const module = await import('@/pages/Settings')
   return { default: module.SettingsPage }
 })
+const ProfilePage = lazy(async () => {
+  const module = await import('@/pages/Profile')
+  return { default: module.ProfilePage }
+})
 const CategoriesPage = lazy(async () => {
   const module = await import('@/pages/Categories')
   return { default: module.CategoriesPage }
@@ -89,6 +93,7 @@ export default function App() {
             <Route path="/budgets" element={<Budgets />} />
             <Route path="/goals" element={<Goals />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/settings/profile" element={<ProfilePage />} />
             <Route path="/settings/categories" element={<CategoriesPage />} />
             <Route path="/settings/recurring" element={<RecurringPage />} />
             <Route path="/settings/review" element={<ReviewsPage />} />

@@ -10,8 +10,7 @@ import { Button } from '@/components/ui/Button'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { InstallSettingsRow } from '@/components/InstallApp'
 import { PinLockSettings } from '@/components/PinLockSettings'
-import { ProfileEditor } from '@/components/ProfileEditor'
-import { isAvatarId } from '@/components/avatars'
+import { AvatarFace, isAvatarId } from '@/components/avatars'
 import { cn } from '@/lib/utils'
 import { CURRENCIES } from '@/utils/currency'
 import type { FirstDayOfWeek } from '@/types'
@@ -46,15 +45,27 @@ export function SettingsPage() {
         </p>
       </header>
 
-      <section className="rounded-2xl border border-blue-100 bg-white p-5">
-        <h2 className="text-sm font-semibold text-slate-900">Profile</h2>
-        <p className="mt-1 mb-5 text-sm text-slate-500">Name and avatar stay on this device</p>
-        <ProfileEditor
-          name={settings.displayName}
-          avatarId={isAvatarId(settings.avatarId) ? settings.avatarId : 1}
-          onSave={(data) => updateSettings(data)}
-        />
-      </section>
+      <Link
+        to="/settings/profile"
+        className="flex items-center gap-3 rounded-2xl border border-blue-100 bg-white px-4 py-3"
+      >
+        <span className="relative size-12 shrink-0 overflow-hidden rounded-full ring-2 ring-blue-100">
+          <span className="absolute inset-0 flex items-center justify-center">
+            <span className="scale-[1.2]">
+              <AvatarFace
+                id={isAvatarId(settings.avatarId) ? settings.avatarId : 1}
+              />
+            </span>
+          </span>
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-semibold text-slate-900">
+            {settings.displayName.trim() || 'Profile'}
+          </span>
+          <span className="block text-xs text-slate-400">Name and avatar</span>
+        </span>
+        <ChevronRight className="size-4 shrink-0 text-slate-400" aria-hidden />
+      </Link>
 
       <section className="overflow-hidden rounded-2xl border border-blue-100 bg-white">
         <h2 className="px-4 pt-4 text-sm font-semibold text-slate-900">Preferences</h2>

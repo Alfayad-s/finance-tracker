@@ -7,6 +7,7 @@ function titleFor(pathname: string): string {
   if (pathname.startsWith('/budgets')) return 'Budgets'
   if (pathname.startsWith('/goals')) return 'Goals'
   if (pathname.startsWith('/review/')) return 'Monthly review'
+  if (pathname.startsWith('/settings/profile')) return 'Profile'
   if (pathname.startsWith('/settings/categories')) return 'Categories'
   if (pathname.startsWith('/settings/recurring')) return 'Recurring'
   if (pathname.startsWith('/settings/review')) return 'Monthly review'
