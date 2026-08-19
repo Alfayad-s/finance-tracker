@@ -49,9 +49,12 @@ interface LockStore {
   unlocked: boolean
   failedAttempts: number
   lockedUntil: number | null
+  skipLock: boolean
   initFromSettings: (settings: Settings | null) => void
   syncEnabled: (settings: Settings | null) => void
   lock: () => void
+  armSkipLock: () => void
+  clearSkipLock: () => void
   verify: (pin: string) => Promise<boolean>
   unlock: (pin: string) => Promise<boolean>
   unlockWithBiometric: (signal?: AbortSignal) => Promise<BiometricUnlockResult>
@@ -79,6 +82,7 @@ export const useLockStore = create<LockStore>((set, get) => ({
   unlocked: true,
   failedAttempts: 0,
   lockedUntil: null,
+  skipLock: false,
 
   initFromSettings: (settings) => {
     const enabled = hasPinLock(settings)
@@ -101,11 +105,14 @@ export const useLockStore = create<LockStore>((set, get) => ({
   },
 
   lock: () => {
-    if (!get().enabled) return
+    if (!get().enabled || get().skipLock) return
     writeSessionUnlocked(false)
     usePrivacyStore.getState().hidePeek()
     set({ unlocked: false })
   },
+
+  armSkipLock: () => set({ skipLock: true }),
+  clearSkipLock: () => set({ skipLock: false }),
 
   verify: async (pin) => {
     const settings = await readSettings()
