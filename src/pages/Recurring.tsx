@@ -1,10 +1,11 @@
 import { useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { Pause, Pencil, Play, Plus, Repeat, Trash2, X } from 'lucide-react'
+import { Pause, Pencil, Play, Plus, Repeat, SkipForward, Trash2, X } from 'lucide-react'
 import {
   addRecurringRule,
   deleteRecurringRule,
   setRecurringActive,
+  skipRecurringOccurrence,
   updateRecurringRule,
   useCategories,
   useRecurringRules,
@@ -21,7 +22,12 @@ import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { CategoryIcon } from '@/utils/categoryIcons'
 import { Amount, AmountPrivacyButton } from '@/components/Amount'
 import { formatDisplayDate, todayISO } from '@/utils/date'
-import { frequencyLabel, RECURRING_FREQUENCIES } from '@/utils/recurring'
+import {
+  frequencyLabel,
+  monthlyEquivalent,
+  recurringTitle,
+  RECURRING_FREQUENCIES,
+} from '@/utils/recurring'
 import type { Category, RecurringFrequency, RecurringRule, TransactionType } from '@/types'
 
 interface RuleDraft {
@@ -104,13 +110,24 @@ export function RecurringPage() {
       <Loader
         size="sm"
         className="min-h-[50dvh] gap-4 p-4"
-        title="Loading recurring..."
-        subtitle="Reading schedules on this device"
+        title="Loading subscriptions..."
+        subtitle="Reading what repeats on this device"
       />
     )
   }
 
   const editorRule = editing === 'new' || editing === null ? null : editing
+  const leaving = rules
+    .filter((rule) => rule.active && rule.type === 'expense')
+    .sort((a, b) => a.nextDate.localeCompare(b.nextDate))
+  const coming = rules
+    .filter((rule) => rule.active && rule.type === 'income')
+    .sort((a, b) => a.nextDate.localeCompare(b.nextDate))
+  const paused = rules.filter((rule) => !rule.active)
+  const leavesMonthly = leaving.reduce(
+    (sum, rule) => sum + monthlyEquivalent(rule.amount, rule.frequency),
+    0,
+  )
 
   return (
     <section className="space-y-5">
@@ -119,9 +136,9 @@ export function RecurringPage() {
           <BackButton to="/settings" label="Back to settings" />
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
-              Recurring
+              Subscriptions
             </h1>
-            <p className="text-sm text-slate-500">Rent, salary, and anything that repeats</p>
+            <p className="text-sm text-slate-500">What leaves every month</p>
           </div>
         </div>
         <div className="flex items-center gap-1">
@@ -133,7 +150,7 @@ export function RecurringPage() {
               setEditing('new')
             }}
             className="rounded-full bg-blue-600 p-2 text-white"
-            aria-label="Add recurring transaction"
+            aria-label="Add subscription"
           >
             <Plus className="size-5" aria-hidden />
           </button>
@@ -144,105 +161,102 @@ export function RecurringPage() {
         <EmptyState
           icon={Repeat}
           title="Nothing repeats yet"
-          description="Add rent, salary, or subscriptions and they will appear in Transactions on each due date."
-          actionLabel="Add recurring"
+          description="Add rent, salary, or subscriptions. Skip a month or pause anytime. Entries land in Transactions on each due date."
+          actionLabel="Add subscription"
           onAction={() => {
             setError(null)
             setEditing('new')
           }}
         />
       ) : (
-        <ul className="divide-y divide-blue-50 overflow-hidden rounded-2xl border border-blue-100 bg-white">
-          {rules.map((rule) => {
-            const category = categoryById.get(rule.categoryId)
-            const paused = !rule.active
-            return (
-              <li key={rule.id} className="flex items-center gap-3 px-4 py-3">
-                <span
-                  className="flex size-10 items-center justify-center rounded-full"
-                  style={{
-                    backgroundColor: `${category?.color ?? '#2563eb'}1a`,
-                    color: category?.color ?? '#2563eb',
-                  }}
-                >
-                  <CategoryIcon name={category?.icon ?? 'CircleEllipsis'} className="size-5" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-slate-900">
-                    {category?.name ?? 'Uncategorized'}
-                    <span className="ml-1.5 text-xs font-normal text-slate-400">
-                      {frequencyLabel(rule.frequency)}
-                    </span>
-                  </p>
-                  <p className="truncate text-xs text-slate-500">
-                    {paused
-                      ? 'Paused'
-                      : `Next ${formatDisplayDate(rule.nextDate)}`}
-                    {rule.note ? ` · ${rule.note}` : ''}
-                  </p>
-                </div>
-                <p
-                  className={`shrink-0 text-sm font-semibold ${
-                    rule.type === 'income' ? 'text-blue-700' : 'text-slate-900'
-                  }`}
-                >
-                  {rule.type === 'income' ? (
-                    <Amount value={rule.amount} currency={currency} sign="in" />
-                  ) : (
-                    <Amount value={rule.amount} currency={currency} sign="out" />
-                  )}
-                </p>
-                <button
-                  type="button"
-                  aria-label={paused ? `Resume ${category?.name ?? 'rule'}` : `Pause ${category?.name ?? 'rule'}`}
-                  onClick={() => {
-                    void (async () => {
-                      await setRecurringActive(rule.id, paused)
-                      if (paused) await generateDueRecurringTransactions()
-                    })()
-                  }}
-                  className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-                >
-                  {paused ? <Play className="size-4" aria-hidden /> : <Pause className="size-4" aria-hidden />}
-                </button>
-                <button
-                  type="button"
-                  aria-label={`Edit ${category?.name ?? 'rule'}`}
-                  onClick={() => {
-                    setError(null)
-                    setEditing(rule)
-                  }}
-                  className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-                >
-                  <Pencil className="size-4" aria-hidden />
-                </button>
-                <button
-                  type="button"
-                  aria-label={`Delete ${category?.name ?? 'rule'}`}
-                  onClick={() => {
-                    setError(null)
-                    setPendingDelete(rule)
-                  }}
-                  className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-                >
-                  <Trash2 className="size-4" aria-hidden />
-                </button>
-              </li>
-            )
-          })}
-        </ul>
+        <>
+          <section className="rounded-2xl border border-blue-100 bg-white p-4">
+            <p className="text-xs font-medium tracking-wide text-slate-400 uppercase">
+              Leaves every month
+            </p>
+            <p className="mt-1 text-2xl font-semibold tracking-tight text-slate-900">
+              <Amount value={leavesMonthly} currency={currency} sign="out" />
+            </p>
+            <p className="mt-1 text-sm text-slate-500">
+              {leaving.length === 0
+                ? 'No active outgoing items'
+                : `${leaving.length} ${leaving.length === 1 ? 'item' : 'items'} · weekly and yearly counted as a typical month`}
+            </p>
+          </section>
+
+          {leaving.length > 0 ? (
+            <RuleList
+              title="Outgoing"
+              rules={leaving}
+              categoryById={categoryById}
+              currency={currency}
+              onSkip={(rule) => void skipRecurringOccurrence(rule.id)}
+              onPause={(rule) => void setRecurringActive(rule.id, false)}
+              onEdit={(rule) => {
+                setError(null)
+                setEditing(rule)
+              }}
+              onDelete={(rule) => {
+                setError(null)
+                setPendingDelete(rule)
+              }}
+            />
+          ) : null}
+
+          {coming.length > 0 ? (
+            <RuleList
+              title="Coming in"
+              rules={coming}
+              categoryById={categoryById}
+              currency={currency}
+              onSkip={(rule) => void skipRecurringOccurrence(rule.id)}
+              onPause={(rule) => void setRecurringActive(rule.id, false)}
+              onEdit={(rule) => {
+                setError(null)
+                setEditing(rule)
+              }}
+              onDelete={(rule) => {
+                setError(null)
+                setPendingDelete(rule)
+              }}
+            />
+          ) : null}
+
+          {paused.length > 0 ? (
+            <RuleList
+              title="Paused"
+              rules={paused}
+              categoryById={categoryById}
+              currency={currency}
+              onResume={(rule) => {
+                void (async () => {
+                  await setRecurringActive(rule.id, true)
+                  await generateDueRecurringTransactions()
+                })()
+              }}
+              onEdit={(rule) => {
+                setError(null)
+                setEditing(rule)
+              }}
+              onDelete={(rule) => {
+                setError(null)
+                setPendingDelete(rule)
+              }}
+            />
+          ) : null}
+        </>
       )}
 
       <p className="flex items-start gap-2 text-xs leading-relaxed text-slate-400">
         <Repeat className="mt-0.5 size-3.5 shrink-0" aria-hidden />
-        Entries already added stay in Transactions if you pause or delete a rule.
-        Opening the app creates any that are due.
+        Entries already added stay in Transactions if you skip, pause, or delete.
+        Opening the app creates any that are due. Skip moves the next date without adding that one.
       </p>
 
       <AnimatePresence>
         {editing ? (
           <RuleEditor
-            title={editorRule ? 'Edit recurring' : 'New recurring'}
+            title={editorRule ? 'Edit subscription' : 'New subscription'}
             categories={categories}
             initial={
               editorRule
@@ -289,6 +303,129 @@ export function RecurringPage() {
           }}
         />
       ) : null}
+    </section>
+  )
+}
+
+function RuleList({
+  title,
+  rules,
+  categoryById,
+  currency,
+  onSkip,
+  onPause,
+  onResume,
+  onEdit,
+  onDelete,
+}: {
+  title: string
+  rules: RecurringRule[]
+  categoryById: Map<string, Category>
+  currency: string
+  onSkip?: (rule: RecurringRule) => void
+  onPause?: (rule: RecurringRule) => void
+  onResume?: (rule: RecurringRule) => void
+  onEdit: (rule: RecurringRule) => void
+  onDelete: (rule: RecurringRule) => void
+}) {
+  return (
+    <section className="overflow-hidden rounded-2xl border border-blue-100 bg-white">
+      <h2 className="px-4 pt-4 pb-2 text-sm font-semibold text-slate-900">{title}</h2>
+      <ul className="divide-y divide-blue-50">
+        {rules.map((rule) => {
+          const category = categoryById.get(rule.categoryId)
+          const name = recurringTitle(rule.note, category?.name ?? 'Uncategorized')
+          return (
+            <li key={rule.id} className="px-4 py-3">
+              <div className="flex items-start gap-3">
+                <span
+                  className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full"
+                  style={{
+                    backgroundColor: `${category?.color ?? '#2563eb'}1a`,
+                    color: category?.color ?? '#2563eb',
+                  }}
+                >
+                  <CategoryIcon name={category?.icon ?? 'CircleEllipsis'} className="size-5" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="truncate font-medium text-slate-900">{name}</p>
+                      <p className="truncate text-xs text-slate-500">
+                        {rule.active
+                          ? `Next ${formatDisplayDate(rule.nextDate)}`
+                          : 'Paused'}
+                        {' · '}
+                        {frequencyLabel(rule.frequency)}
+                        {rule.note && category ? ` · ${category.name}` : ''}
+                      </p>
+                    </div>
+                    <p
+                      className={`shrink-0 text-sm font-semibold ${
+                        rule.type === 'income' ? 'text-blue-700' : 'text-slate-900'
+                      }`}
+                    >
+                      {rule.type === 'income' ? (
+                        <Amount value={rule.amount} currency={currency} sign="in" />
+                      ) : (
+                        <Amount value={rule.amount} currency={currency} sign="out" />
+                      )}
+                    </p>
+                  </div>
+                  <div className="mt-2 flex flex-wrap items-center gap-1">
+                    {onSkip ? (
+                      <button
+                        type="button"
+                        onClick={() => onSkip(rule)}
+                        className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100"
+                      >
+                        <SkipForward className="size-3.5" aria-hidden />
+                        Skip
+                      </button>
+                    ) : null}
+                    {onPause ? (
+                      <button
+                        type="button"
+                        onClick={() => onPause(rule)}
+                        className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100"
+                      >
+                        <Pause className="size-3.5" aria-hidden />
+                        Pause
+                      </button>
+                    ) : null}
+                    {onResume ? (
+                      <button
+                        type="button"
+                        onClick={() => onResume(rule)}
+                        className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-50"
+                      >
+                        <Play className="size-3.5" aria-hidden />
+                        Resume
+                      </button>
+                    ) : null}
+                    <button
+                      type="button"
+                      aria-label={`Edit ${name}`}
+                      onClick={() => onEdit(rule)}
+                      className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                    >
+                      <Pencil className="size-3.5" aria-hidden />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={`Delete ${name}`}
+                      onClick={() => onDelete(rule)}
+                      className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                    >
+                      <Trash2 className="size-3.5" aria-hidden />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </li>
+          )
+        })}
+      </ul>
     </section>
   )
 }

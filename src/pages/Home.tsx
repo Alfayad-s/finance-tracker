@@ -7,6 +7,7 @@ import {
   useMonthHasTransactions,
   useMonthlyReviews,
   useRecentTransactions,
+  useRecurringRules,
   useSettings,
   useTransactionCount,
   useTransactionsSince,
@@ -22,8 +23,9 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { Loader } from '@/components/ui/Loader'
 import { TransactionDetail } from '@/components/TransactionDetail'
 import { TransactionItem } from '@/components/TransactionItem'
-import { currentMonth, formatMonthTitle, lastNMonths, previousMonth } from '@/utils/date'
+import { currentMonth, formatDisplayDate, formatMonthTitle, lastNMonths, previousMonth } from '@/utils/date'
 import { pickSoftInsight } from '@/utils/insights'
+import { monthlyEquivalent, recurringTitle } from '@/utils/recurring'
 import {
   categoryBreakdown,
   greeting,
@@ -54,6 +56,7 @@ export function Home() {
   const lastMonthHasRows = useMonthHasTransactions(lastMonth)
   const budgets = useMonthBudgets(month)
   const reviews = useMonthlyReviews()
+  const recurring = useRecurringRules()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const amountsHidden = useAmountHidden()
 
@@ -83,7 +86,9 @@ export function Home() {
     totalCount === undefined ||
     lastMonthHasRows === undefined ||
     !overview ||
-    !budgets
+    !budgets ||
+    !reviews ||
+    !recurring
   ) {
     return (
       <Loader
@@ -117,6 +122,21 @@ export function Home() {
         currency,
         hideAmounts: amountsHidden,
       })
+    : null
+
+  const outgoing = recurring
+    .filter((rule) => rule.active && rule.type === 'expense')
+    .sort((a, b) => a.nextDate.localeCompare(b.nextDate))
+  const leavesMonthly = outgoing.reduce(
+    (sum, rule) => sum + monthlyEquivalent(rule.amount, rule.frequency),
+    0,
+  )
+  const nextOutgoing = outgoing[0]
+  const nextOutgoingName = nextOutgoing
+    ? recurringTitle(
+        nextOutgoing.note,
+        categories.find((category) => category.id === nextOutgoing.categoryId)?.name,
+      )
     : null
 
   return (
@@ -164,6 +184,30 @@ export function Home() {
         month={month}
         holder={displayName || 'This device'}
       />
+
+      {outgoing.length > 0 ? (
+        <Link
+          to="/settings/recurring"
+          className="block rounded-2xl border border-blue-100 bg-white p-4"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-medium tracking-wide text-slate-400 uppercase">
+                Leaves every month
+              </p>
+              <p className="mt-1 text-lg font-semibold text-slate-900">
+                <Amount value={leavesMonthly} currency={currency} sign="out" />
+              </p>
+              {nextOutgoing && nextOutgoingName ? (
+                <p className="mt-1 text-sm text-slate-500">
+                  {nextOutgoingName} next {formatDisplayDate(nextOutgoing.nextDate)}
+                </p>
+              ) : null}
+            </div>
+            <span className="text-sm font-medium text-blue-600">Subscriptions</span>
+          </div>
+        </Link>
+      ) : null}
 
       {pendingReview ? (
         <Link

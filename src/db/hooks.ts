@@ -327,6 +327,18 @@ export async function setRecurringActive(id: string, active: boolean): Promise<v
   })
 }
 
+export async function skipRecurringOccurrence(id: string): Promise<void> {
+  const rule = await db.recurringRules.get(id)
+  if (!rule || !rule.active) return
+
+  const nextDate = nextOccurrence(rule.nextDate, rule.frequency)
+  const ended = Boolean(rule.endDate && nextDate > rule.endDate)
+  await updateRecurringRule(id, {
+    nextDate,
+    active: ended ? false : true,
+  })
+}
+
 export async function deleteRecurringRule(id: string): Promise<void> {
   await db.recurringRules.delete(id)
 }

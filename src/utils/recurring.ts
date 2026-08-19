@@ -19,3 +19,16 @@ export function frequencyLabel(frequency: RecurringFrequency): string {
   if (frequency === 'yearly') return 'Yearly'
   return 'Monthly'
 }
+
+/** Typical amount that leaves (or arrives) in a calendar month. */
+export function monthlyEquivalent(amount: number, frequency: RecurringFrequency): number {
+  if (frequency === 'weekly') return Math.round(((amount * 52) / 12) * 100) / 100
+  if (frequency === 'yearly') return Math.round((amount / 12) * 100) / 100
+  return amount
+}
+
+export function recurringTitle(note: string | undefined, categoryName?: string): string {
+  const trimmed = note?.trim()
+  if (trimmed) return trimmed
+  return categoryName || 'Subscription'
+}

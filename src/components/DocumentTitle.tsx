@@ -9,7 +9,8 @@ function titleFor(pathname: string): string {
   if (pathname.startsWith('/review/')) return 'Monthly review'
   if (pathname.startsWith('/settings/profile')) return 'Profile'
   if (pathname.startsWith('/settings/categories')) return 'Categories'
-  if (pathname.startsWith('/settings/recurring')) return 'Recurring'
+  if (pathname.startsWith('/settings/recurring') || pathname.startsWith('/settings/subscriptions'))
+    return 'Subscriptions'
   if (pathname.startsWith('/settings/review')) return 'Monthly review'
   if (pathname.startsWith('/settings/backup')) return 'Export & import'
   if (pathname.startsWith('/settings/import')) return 'Bank statement import'

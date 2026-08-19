@@ -77,6 +77,7 @@ No accounts, no cloud, no tracking — just a fast and beautiful tool to track i
 - [x] Budget progress bars
 - [x] Visual Goal Jars (create, fund, track)
 - [x] Recurring transactions
+- [x] Subscriptions hub (monthly outgoing list, skip / pause)
 - [x] Soft Insights on Home screen
 - [x] Monthly spending overview charts
 
@@ -394,6 +395,7 @@ This gives the best balance between automatic updates and user control.
 - Budget progress visualization
 - Goal Jars (create, add money, progress)
 - Recurring transactions
+- Subscriptions hub (what leaves every month; skip this occurrence or pause)
 - Soft Insights
 - Better charts on Home
 
@@ -441,6 +443,15 @@ This gives the best balance between automatic updates and user control.
 2. Tap a Goal Jar
 3. Add money (from balance or specific transaction)
 4. Visual progress updates immediately
+
+
+
+### Subscriptions Flow
+
+1. Open Settings → Subscriptions, or the Home card
+2. See a typical monthly outgoing total and the next due date for each item
+3. Skip moves the next date without adding that occurrence
+4. Pause stops future entries; Resume starts them again
 
 ---
 

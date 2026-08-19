@@ -187,7 +187,7 @@ export function SettingsPage() {
           to="/settings/recurring"
           className="flex items-center justify-between border-t border-blue-50 px-4 py-3 text-sm text-slate-700"
         >
-          Recurring
+          Subscriptions
           <ChevronRight className="size-4 text-slate-400" aria-hidden />
         </Link>
         <Link

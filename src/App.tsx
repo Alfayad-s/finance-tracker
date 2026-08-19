@@ -96,6 +96,7 @@ export default function App() {
             <Route path="/settings/profile" element={<ProfilePage />} />
             <Route path="/settings/categories" element={<CategoriesPage />} />
             <Route path="/settings/recurring" element={<RecurringPage />} />
+            <Route path="/settings/subscriptions" element={<RecurringPage />} />
             <Route path="/settings/review" element={<ReviewsPage />} />
             <Route path="/settings/backup" element={<BackupPage />} />
             <Route path="/settings/import" element={<CsvImportPage />} />

@@ -48,7 +48,7 @@ These stay 100% on-device and make the current app more useful.
 1. **Dark / Light / System theme** — already deferred in the spec; still the most requested polish item.
 2. **Payment wallets** — Cash / UPI / card / other as first-class filters and summaries (the transaction field already exists).
 3. **Transfers** — move money between wallets without counting as income or expense.
-5. **Subscriptions hub** — recurring items as a simple “what leaves every month” list, with skip / pause.
+5. **Subscriptions hub** — recurring items as a simple “what leaves every month” list, with skip / pause. **Built.** Settings → Subscriptions; Home shows the monthly outgoing total when anything is active.
 6. **Undo last save** — short snackbar undo after Quick Add, edit, or delete.
 7. **Duplicate / template a transaction** — one tap to enter the same coffee again.
 8. **Bulk select** — categorize, delete, or attach a note to several rows at once.
@@ -113,8 +113,7 @@ These fight “private, local, calm.” Keep them out unless the product directi
 If building from this file, start here. Highest value for the current app, still on-device:
 
 1. Undo last save
-2. Subscriptions hub (from recurring)
-3. Payment wallets + transfers
+2. Payment wallets + transfers
 4. Import rules manager + undo last import
 5. Dark / system theme
 6. Encrypted local backup
