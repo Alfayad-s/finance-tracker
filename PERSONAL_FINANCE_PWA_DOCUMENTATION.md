@@ -357,7 +357,9 @@ This gives the best balance between automatic updates and user control.
 
 **Important Notes:**
 
-- Users must open the app at least once while online after deployment to receive the update.
+- The prompt only exists in the **production** app (the HTTPS Vercel URL or the installed PWA). `npm run dev` never shows it.
+- `git push` only updates GitHub. Wait until Vercel finishes the deploy, then open the **live** app while online.
+- The first time this prompt ships, phones may still be running an older cached version that has no banner. Close every Finance Tracker tab/window once (or reopen the installed app) so this version can take over. After that, the next deploy should show **New version available**.
 - Offline users stay on the previous version until they come online.
 
 ---

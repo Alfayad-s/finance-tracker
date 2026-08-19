@@ -67,41 +67,36 @@ export default function App() {
   useHidePeekOnLeave()
   const locked = useLockStore((store) => store.enabled && !store.unlocked)
 
-  if (locked) {
-    return (
-      <>
-        <DocumentTitle />
-        <LockScreen />
-      </>
-    )
-  }
-
   return (
     <>
       <DocumentTitle />
       <UpdateBanner />
-      <Routes>
-        <Route
-          path="/review/:month"
-          element={
-            <Suspense fallback={<PageFallback />}>
-              <ReviewShell />
-            </Suspense>
-          }
-        />
-        <Route element={<AppLayout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/transactions" element={<Transactions />} />
-          <Route path="/budgets" element={<Budgets />} />
-          <Route path="/goals" element={<Goals />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/settings/categories" element={<CategoriesPage />} />
-          <Route path="/settings/recurring" element={<RecurringPage />} />
-          <Route path="/settings/review" element={<ReviewsPage />} />
-          <Route path="/settings/backup" element={<BackupPage />} />
-          <Route path="/settings/import" element={<CsvImportPage />} />
-        </Route>
-      </Routes>
+      {locked ? (
+        <LockScreen />
+      ) : (
+        <Routes>
+          <Route
+            path="/review/:month"
+            element={
+              <Suspense fallback={<PageFallback />}>
+                <ReviewShell />
+              </Suspense>
+            }
+          />
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/transactions" element={<Transactions />} />
+            <Route path="/budgets" element={<Budgets />} />
+            <Route path="/goals" element={<Goals />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/settings/categories" element={<CategoriesPage />} />
+            <Route path="/settings/recurring" element={<RecurringPage />} />
+            <Route path="/settings/review" element={<ReviewsPage />} />
+            <Route path="/settings/backup" element={<BackupPage />} />
+            <Route path="/settings/import" element={<CsvImportPage />} />
+          </Route>
+        </Routes>
+      )}
     </>
   )
 }

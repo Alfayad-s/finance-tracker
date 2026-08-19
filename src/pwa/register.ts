@@ -10,6 +10,11 @@ function notify() {
   for (const listener of listeners) listener(needRefresh)
 }
 
+function markNeedRefresh() {
+  needRefresh = true
+  notify()
+}
+
 export function initPwa() {
   if (!import.meta.env.PROD) return
   if (updateSW) return
@@ -17,20 +22,23 @@ export function initPwa() {
   updateSW = registerSW({
     immediate: true,
     onNeedRefresh() {
-      needRefresh = true
-      notify()
+      markNeedRefresh()
     },
     onRegisteredSW(_url, registration) {
       if (!registration) return
+
+      if (registration.waiting) markNeedRefresh()
 
       const check = () => {
         void registration.update()
       }
 
+      check()
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') check()
       })
-      window.setInterval(check, 60 * 60 * 1000)
+      window.addEventListener('focus', check)
+      window.setInterval(check, 15 * 60 * 1000)
     },
   })
 }

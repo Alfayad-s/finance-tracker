@@ -17,7 +17,7 @@ export function UpdateBanner() {
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -12 }}
-          className="pointer-events-none fixed inset-x-0 top-4 z-40 mx-auto max-w-lg px-4"
+          className="pointer-events-none fixed inset-x-0 top-4 z-[70] mx-auto max-w-lg px-4"
         >
           <div
             role="status"
