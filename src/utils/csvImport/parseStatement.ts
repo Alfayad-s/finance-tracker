@@ -1,4 +1,5 @@
 import { PdfPasswordError, preparePdf } from './pdfStatement'
+import { prepareSpreadsheet, isSpreadsheetFile } from './xlsxStatement'
 import { prepareCsv } from './presets'
 import type { BankPresetId, ColumnMapping, ParsedCsv } from './types'
 
@@ -19,6 +20,11 @@ export async function parseStatementFile(
   if (isPdfFile(file)) {
     const data = await file.arrayBuffer()
     return preparePdf(data, file.name, password)
+  }
+
+  if (isSpreadsheetFile(file)) {
+    const data = await file.arrayBuffer()
+    return prepareSpreadsheet(data, file.name)
   }
 
   const text = await file.text()

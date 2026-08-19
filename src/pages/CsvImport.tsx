@@ -268,19 +268,19 @@ export function CsvImportPage() {
       {step === 'pick' ? (
         <section className="space-y-3 rounded-2xl border border-blue-100 bg-white p-4">
           <p className="text-sm leading-relaxed text-slate-500">
-            Choose a CSV or PDF from HDFC, SBI, ICICI, Axis, Kotak, or any statement with date
-            and amount columns. Existing transactions stay as they are.
+            Choose a CSV, Excel, or PDF from HDFC, SBI, ICICI, Axis, Kotak, or any statement
+            with date and amount columns. Existing transactions stay as they are.
           </p>
           <input
             ref={fileRef}
             type="file"
-            accept=".csv,.pdf,text/csv,text/plain,application/pdf"
+            accept=".csv,.xlsx,.xls,.xlsm,.pdf,text/csv,text/plain,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             className="sr-only"
-            aria-label="Bank statement CSV or PDF"
+            aria-label="Bank statement CSV, Excel, or PDF"
             onChange={(event) => void onFile(event.target.files?.[0])}
           />
           <Button className="w-full" disabled={busy} onClick={() => fileRef.current?.click()}>
-            {busy ? 'Reading…' : 'Choose CSV or PDF'}
+            {busy ? 'Reading…' : 'Choose CSV, Excel, or PDF'}
           </Button>
           {pendingFile ? (
             <form
@@ -453,9 +453,9 @@ export function CsvImportPage() {
       ) : null}
 
       <p className="text-xs leading-relaxed text-slate-400">
-        Statements stay on this device. PDF text statements work; scanned image PDFs do not.
-        JSON restore on the previous screen still replaces everything; this import only
-        appends.
+        Statements stay on this device. Excel and PDF text statements work; scanned image
+        PDFs do not. JSON restore on the previous screen still replaces everything; this
+        import only appends.
       </p>
 
       {confirm ? (
