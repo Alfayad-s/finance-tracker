@@ -25,6 +25,7 @@ export function ProfileEditor({
   const [username, setUsername] = useState(name)
   const [focused, setFocused] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [picking, setPicking] = useState(false)
 
   useEffect(() => {
     setSelected(avatarId)
@@ -42,6 +43,7 @@ export function ProfileEditor({
     setSaving(true)
     try {
       await onSave({ displayName: trimmed, avatarId: selected })
+      setPicking(false)
     } finally {
       setSaving(false)
     }
@@ -93,39 +95,61 @@ export function ProfileEditor({
           </motion.span>
         </AnimatePresence>
 
-        <div className="grid grid-cols-4 gap-2.5">
-          {AVATAR_IDS.map((id) => {
-            const isSelected = selected === id
-            return (
-              <motion.button
-                key={id}
-                type="button"
-                aria-label={`Select ${AVATAR_LABELS[id]}`}
-                aria-pressed={isSelected}
-                onClick={() => setSelected(id)}
-                whileHover={shouldReduceMotion ? undefined : { scale: 1.06 }}
-                whileTap={shouldReduceMotion ? undefined : { scale: 0.94 }}
-                className={cn(
-                  'relative size-12 overflow-hidden rounded-xl border bg-slate-50',
-                  isSelected
-                    ? 'border-blue-200 opacity-100 ring-2 ring-blue-600 ring-offset-2'
-                    : 'border-blue-100 opacity-50 hover:opacity-100',
-                )}
-              >
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="scale-[2]">
-                    <AvatarFace id={id} />
-                  </div>
-                </div>
-                {isSelected ? (
-                  <span className="absolute -right-0.5 -bottom-0.5 flex size-5 items-center justify-center rounded-full bg-blue-600">
-                    <Check className="size-3 text-white" aria-hidden />
-                  </span>
-                ) : null}
-              </motion.button>
-            )
-          })}
-        </div>
+        <button
+          type="button"
+          onClick={() => setPicking((open) => !open)}
+          className="text-sm font-medium text-blue-600"
+        >
+          {picking ? 'Hide avatars' : 'Change avatar'}
+        </button>
+
+        <AnimatePresence>
+          {picking ? (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={
+                shouldReduceMotion ? { duration: 0 } : { duration: 0.22, ease: 'easeOut' }
+              }
+              className="overflow-hidden"
+            >
+              <div className="grid max-h-56 grid-cols-4 gap-2.5 overflow-y-auto pr-1">
+                {AVATAR_IDS.map((id) => {
+                  const isSelected = selected === id
+                  return (
+                    <motion.button
+                      key={id}
+                      type="button"
+                      aria-label={`Select ${AVATAR_LABELS[id]}`}
+                      aria-pressed={isSelected}
+                      onClick={() => setSelected(id)}
+                      whileHover={shouldReduceMotion ? undefined : { scale: 1.06 }}
+                      whileTap={shouldReduceMotion ? undefined : { scale: 0.94 }}
+                      className={cn(
+                        'relative size-12 overflow-hidden rounded-xl border bg-slate-50',
+                        isSelected
+                          ? 'border-blue-200 opacity-100 ring-2 ring-blue-600 ring-offset-2'
+                          : 'border-blue-100 opacity-50 hover:opacity-100',
+                      )}
+                    >
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="scale-[2]">
+                          <AvatarFace id={id} />
+                        </div>
+                      </div>
+                      {isSelected ? (
+                        <span className="absolute -right-0.5 -bottom-0.5 flex size-5 items-center justify-center rounded-full bg-blue-600">
+                          <Check className="size-3 text-white" aria-hidden />
+                        </span>
+                      ) : null}
+                    </motion.button>
+                  )
+                })}
+              </div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </div>
 
       <div className="space-y-2">

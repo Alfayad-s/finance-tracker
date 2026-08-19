@@ -6,6 +6,7 @@ import { useSettings } from '@/db/hooks'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { usePrivacyStore } from '@/stores/privacyStore'
 import { Loader } from '@/components/ui/Loader'
+import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { InstallSettingsRow } from '@/components/InstallApp'
@@ -36,13 +37,16 @@ export function SettingsPage() {
 
   return (
     <section className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
-          Settings
-        </h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Everything stays on this device. No account, no cloud.
-        </p>
+      <header className="flex items-start gap-2">
+        <BackButton to="/" label="Back to home" />
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+            Settings
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Everything stays on this device. No account, no cloud.
+          </p>
+        </div>
       </header>
 
       <Link

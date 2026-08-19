@@ -11,6 +11,7 @@ import {
   useTransactions,
 } from '@/db/hooks'
 import { Button } from '@/components/ui/Button'
+import { BackButton } from '@/components/ui/BackButton'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { GoalJar } from '@/components/GoalJar'
@@ -106,11 +107,14 @@ export function Goals() {
   return (
     <section className="space-y-5">
       <header className="flex items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Goals</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            <Amount value={Math.max(0, available)} currency={currency} /> free to put in a jar
-          </p>
+        <div className="flex min-w-0 items-start gap-2">
+          <BackButton to="/" label="Back to home" />
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Goals</h1>
+            <p className="mt-1 text-sm text-slate-500">
+              <Amount value={Math.max(0, available)} currency={currency} /> free to put in a jar
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-1">
           <AmountPrivacyButton />

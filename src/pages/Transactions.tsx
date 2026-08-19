@@ -8,6 +8,7 @@ import {
 } from '@/db/hooks'
 import { Loader } from '@/components/ui/Loader'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { BackButton } from '@/components/ui/BackButton'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { TransactionDetail } from '@/components/TransactionDetail'
 import { TransactionItem } from '@/components/TransactionItem'
@@ -98,13 +99,16 @@ export function Transactions() {
   return (
     <section className="space-y-5">
       <header className="flex items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
-            Transactions
-          </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            {filtered.length} {filtered.length === 1 ? 'entry' : 'entries'}
-          </p>
+        <div className="flex min-w-0 items-start gap-2">
+          <BackButton to="/" label="Back to home" />
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+              Transactions
+            </h1>
+            <p className="mt-1 text-sm text-slate-500">
+              {filtered.length} {filtered.length === 1 ? 'entry' : 'entries'}
+            </p>
+          </div>
         </div>
         <AmountPrivacyButton />
       </header>

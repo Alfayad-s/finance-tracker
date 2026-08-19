@@ -1,5 +1,4 @@
-import { ChevronLeft } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { BackButton } from '@/components/ui/BackButton'
 import { useSettings } from '@/db/hooks'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { Loader } from '@/components/ui/Loader'
@@ -24,13 +23,7 @@ export function ProfilePage() {
   return (
     <section className="space-y-6">
       <header className="flex items-center gap-2">
-        <Link
-          to="/settings"
-          aria-label="Back to settings"
-          className="rounded-full p-2 text-slate-500 hover:bg-blue-50 hover:text-blue-600"
-        >
-          <ChevronLeft className="size-5" aria-hidden />
-        </Link>
+        <BackButton to="/settings" label="Back to settings" />
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Profile</h1>
           <p className="text-sm text-slate-500">Name and avatar stay on this device</p>

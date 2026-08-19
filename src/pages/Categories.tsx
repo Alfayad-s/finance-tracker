@@ -1,7 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { ChevronLeft, Pencil, Plus, Trash2, X } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Pencil, Plus, Trash2, X } from 'lucide-react'
 import {
   addCategory,
   deleteCategory,
@@ -9,6 +8,7 @@ import {
   useCategories,
 } from '@/db/hooks'
 import { Button } from '@/components/ui/Button'
+import { BackButton } from '@/components/ui/BackButton'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { Loader } from '@/components/ui/Loader'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
@@ -100,13 +100,7 @@ export function CategoriesPage() {
     <section className="space-y-5">
       <header className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Link
-            to="/settings"
-            aria-label="Back to settings"
-            className="rounded-full p-2 text-slate-500 hover:bg-blue-50 hover:text-blue-600"
-          >
-          <ChevronLeft className="size-5" aria-hidden />
-          </Link>
+          <BackButton to="/settings" label="Back to settings" />
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
               Categories

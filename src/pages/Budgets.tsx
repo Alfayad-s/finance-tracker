@@ -11,6 +11,7 @@ import {
 } from '@/db/hooks'
 import { BudgetProgress } from '@/components/BudgetProgress'
 import { Button } from '@/components/ui/Button'
+import { BackButton } from '@/components/ui/BackButton'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Loader } from '@/components/ui/Loader'
 import { CategoryIcon } from '@/utils/categoryIcons'
@@ -105,7 +106,12 @@ export function Budgets() {
 
   return (
     <section className="space-y-5">
-      <header className="flex items-center justify-between gap-3">
+      <header className="space-y-3">
+        <div className="flex items-center gap-2">
+          <BackButton to="/" label="Back to home" />
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Budgets</h1>
+        </div>
+        <div className="flex items-center justify-between gap-3">
         <button
           type="button"
           aria-label="Previous month"
@@ -115,9 +121,9 @@ export function Budgets() {
           <ChevronLeft className="size-5" aria-hidden />
         </button>
         <div className="text-center">
-          <h1 className="text-xl font-semibold tracking-tight text-slate-900">
+          <p className="text-xl font-semibold tracking-tight text-slate-900">
             {formatMonthTitle(month)}
-          </h1>
+          </p>
           <p className="text-sm text-slate-500">Monthly budgets</p>
         </div>
         <button
@@ -129,6 +135,7 @@ export function Budgets() {
         >
           <ChevronRight className="size-5" aria-hidden />
         </button>
+        </div>
       </header>
 
       <section className="rounded-2xl border border-blue-100 bg-white p-4">

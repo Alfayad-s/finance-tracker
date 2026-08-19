@@ -1,7 +1,8 @@
-import { BookOpen, ChevronLeft } from 'lucide-react'
+import { BookOpen } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useMonthlyReviews, useTransactions } from '@/db/hooks'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { BackButton } from '@/components/ui/BackButton'
 import { Loader } from '@/components/ui/Loader'
 import { currentMonth, formatMonthTitle, previousMonth } from '@/utils/date'
 import type { MonthlyReview, Transaction } from '@/types'
@@ -44,13 +45,7 @@ function ReviewsHub({
   return (
     <section className="space-y-5">
       <header className="flex items-center gap-2">
-        <Link
-          to="/settings"
-          aria-label="Back to settings"
-          className="rounded-full p-2 text-slate-500 hover:bg-blue-50 hover:text-blue-600"
-        >
-          <ChevronLeft className="size-5" aria-hidden />
-        </Link>
+        <BackButton to="/settings" label="Back to settings" />
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
             Monthly review

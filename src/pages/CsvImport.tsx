@@ -1,6 +1,4 @@
 import { useMemo, useRef, useState } from 'react'
-import { ChevronLeft } from 'lucide-react'
-import { Link } from 'react-router-dom'
 import {
   addTransactions,
   getImportRules,
@@ -10,6 +8,7 @@ import {
   useTransactions,
 } from '@/db/hooks'
 import { Button } from '@/components/ui/Button'
+import { BackButton } from '@/components/ui/BackButton'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { Loader } from '@/components/ui/Loader'
 import { cn } from '@/lib/utils'
@@ -252,13 +251,7 @@ export function CsvImportPage() {
   return (
     <section className="space-y-5">
       <header className="flex items-center gap-2">
-        <Link
-          to="/settings/backup"
-          aria-label="Back to export and import"
-          className="rounded-full p-2 text-slate-500 hover:bg-blue-50 hover:text-blue-600"
-        >
-          <ChevronLeft className="size-5" aria-hidden />
-        </Link>
+        <BackButton to="/settings/backup" label="Back to export and import" />
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
             Bank statement import
