@@ -71,6 +71,21 @@ export interface SplitRealtimeMessage {
   memberId?: string
   displayName?: string
   groupId?: string
+  fromMemberId?: string
+  toMemberId?: string
+  groupName?: string
+  rejoined?: boolean
+}
+
+export interface SplitNotice {
+  id: string
+  groupId: string
+  groupName: string
+  event: string
+  title: string
+  body: string
+  read: boolean
+  createdAt: string
 }
 
 export interface AuthGroupResponse {

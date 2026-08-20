@@ -11,9 +11,9 @@ export default defineConfig({
     VitePWA({
       registerType: 'prompt',
       injectRegister: false,
-      includeAssets: ['favicon.svg', 'icons/*.svg', 'icons/*.png'],
+        includeAssets: ['favicon.svg', 'icons/*.svg', 'icons/*.png', 'notification-sound.mp3'],
       workbox: {
-        globPatterns: ['**/*.{js,mjs,css,html,ico,png,svg,woff2,webmanifest}'],
+        globPatterns: ['**/*.{js,mjs,css,html,ico,png,svg,woff2,webmanifest,mp3}'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         navigateFallback: 'index.html',
       },

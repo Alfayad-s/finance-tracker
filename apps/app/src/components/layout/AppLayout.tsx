@@ -4,6 +4,9 @@ import { motion } from 'motion/react'
 import { generateDueRecurringTransactions } from '@/db/recurring'
 import { Loader } from '@/components/ui/Loader'
 import { Toast } from '@/components/ui/Toast'
+import { SplitNoticeBell } from '@/components/split/SplitNoticeBell'
+import { SplitLiveProvider } from '@/split/SplitLiveProvider'
+import { unlockNotificationSound } from '@/split/sound'
 import { BottomNav } from './BottomNav'
 
 const TransactionForm = lazy(async () => {
@@ -30,7 +33,11 @@ export function AppLayout() {
   }, [])
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-lg flex-col bg-white text-slate-900">
+    <SplitLiveProvider onToast={setToast}>
+    <div
+      className="mx-auto flex min-h-dvh w-full max-w-lg flex-col bg-white text-slate-900"
+      onPointerDown={unlockNotificationSound}
+    >
       <a
         href="#main-content"
         className="sr-only z-50 rounded-lg bg-white px-4 py-2 text-sm font-medium text-blue-700 shadow focus:not-sr-only focus:absolute focus:top-3 focus:left-3"
@@ -63,6 +70,7 @@ export function AppLayout() {
           </Suspense>
         </motion.div>
       </main>
+      <SplitNoticeBell />
       <BottomNav onAdd={openQuickAdd} />
       {quickAddOpen ? (
         <Suspense fallback={null}>
@@ -78,5 +86,6 @@ export function AppLayout() {
       ) : null}
       <Toast message={toast} onDismiss={dismissToast} />
     </div>
+    </SplitLiveProvider>
   )
 }

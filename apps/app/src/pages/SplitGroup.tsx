@@ -18,9 +18,11 @@ import {
   fetchGroup,
   leaveGroup,
   rupeesToCents,
+  sendNudge,
 } from '@/split/api'
 import { getSplitSession, removeSplitSession, saveSplitSession } from '@/split/sessions'
-import { useSplitRealtime } from '@/split/useSplitRealtime'
+import { subscribeSplitGroup } from '@/split/SplitLiveProvider'
+import { unlockNotificationSound } from '@/split/sound'
 import type { SplitGroup, SplitSession } from '@/split/types'
 
 function memberName(group: SplitGroup, id: string) {
@@ -37,6 +39,8 @@ export function SplitGroupPage() {
   const [pendingDelete, setPendingDelete] = useState<string | null>(null)
   const [pendingLeave, setPendingLeave] = useState(false)
   const [busy, setBusy] = useState(false)
+
+  const [nudging, setNudging] = useState<string | null>(null)
 
   const [amount, setAmount] = useState('')
   const [note, setNote] = useState('')
@@ -66,31 +70,16 @@ export function SplitGroupPage() {
     })
   }, [load])
 
-  useSplitRealtime(session?.sessionToken, (message) => {
-    if (message.event === 'connected') return
-    if (message.group) {
-      setGroup(message.group)
-      if (session) {
+  useEffect(() => {
+    if (!id || !session) return
+    return subscribeSplitGroup(id, (message) => {
+      if (message.event === 'connected') return
+      if (message.group) {
+        setGroup(message.group)
         void saveSplitSession({ ...session, groupName: message.group.name })
       }
-    }
-    if (message.event === 'member_left' && message.displayName && message.memberId !== session?.memberId) {
-      setLiveNote(`${message.displayName} left the group`)
-      window.setTimeout(() => setLiveNote(null), 4000)
-    }
-    if (message.event === 'member_joined' && message.displayName && message.memberId !== session?.memberId) {
-      setLiveNote(`${message.displayName} joined the group`)
-      window.setTimeout(() => setLiveNote(null), 4000)
-    }
-    if (message.event === 'expense_added') {
-      setLiveNote('A new shared expense arrived')
-      window.setTimeout(() => setLiveNote(null), 4000)
-    }
-    if (message.event === 'settlement_added') {
-      setLiveNote('A settle-up was recorded')
-      window.setTimeout(() => setLiveNote(null), 4000)
-    }
-  })
+    })
+  }, [id, session])
 
   const names = useMemo(() => {
     if (!group) return new Map<string, string>()
@@ -202,6 +191,22 @@ export function SplitGroupPage() {
     }
   }
 
+  async function pingMember(memberId: string) {
+    if (!id || !session) return
+    unlockNotificationSound()
+    setNudging(memberId)
+    setError(null)
+    try {
+      await sendNudge(id, session.sessionToken, memberId)
+      setLiveNote('Notification sent with sound on their phone')
+      window.setTimeout(() => setLiveNote(null), 2500)
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Could not notify them')
+    } finally {
+      setNudging(null)
+    }
+  }
+
   async function confirmLeave() {
     if (!id || !session) return
     setBusy(true)
@@ -267,7 +272,7 @@ export function SplitGroupPage() {
     <section className="space-y-6">
       <header className="flex items-start gap-2">
         <BackButton to="/splits" label="Back to splits" />
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 pr-12">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900">{group.name}</h1>
           <p className="mt-1 text-sm text-slate-500">
             Invite code <span className="font-medium tracking-widest text-slate-800">{group.inviteCode}</span>
@@ -345,14 +350,23 @@ export function SplitGroupPage() {
           {group.members.map((member, index) => (
             <li
               key={member.id}
-              className={`flex items-center justify-between px-4 py-3 text-sm ${index === 0 ? '' : 'border-t border-blue-50'}`}
+              className={`flex items-center justify-between gap-3 px-4 py-3 text-sm ${index === 0 ? '' : 'border-t border-blue-50'}`}
             >
-              <span className="text-slate-800">
+              <span className="min-w-0 text-slate-800">
                 {member.displayName}
                 {member.id === you ? ' (you)' : ''}
                 {member.leftAt ? ' · left' : ''}
+                <span className="mt-0.5 block text-xs text-slate-400">{member.role}</span>
               </span>
-              <span className="text-xs text-slate-400">{member.role}</span>
+              {!member.leftAt && member.id !== you ? (
+                <Button
+                  className="shrink-0 bg-slate-100 px-3 py-1.5 text-xs text-slate-700"
+                  disabled={nudging === member.id}
+                  onClick={() => void pingMember(member.id)}
+                >
+                  {nudging === member.id ? 'Sending...' : 'Notify'}
+                </Button>
+              ) : null}
             </li>
           ))}
         </ul>

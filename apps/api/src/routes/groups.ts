@@ -212,6 +212,7 @@ export async function joinGroup(c: Context) {
   const sessionToken = newSessionToken()
   let memberId: string
 
+  let rejoined = false
   if (active) {
     memberId = active.id
     await db
@@ -219,6 +220,7 @@ export async function joinGroup(c: Context) {
       .set({ sessionTokenHash: hashToken(sessionToken), displayName })
       .where(eq(members.id, active.id))
   } else if (leftover) {
+    rejoined = true
     memberId = leftover.id
     await db
       .update(members)
@@ -240,10 +242,13 @@ export async function joinGroup(c: Context) {
     })
   }
 
-  const group = await emitGroup(found.id, 'member_joined', {
-    memberId,
-    displayName,
-  })
+  const group = active
+    ? await groupPayload(found.id)
+    : await emitGroup(found.id, 'member_joined', {
+        memberId,
+        displayName,
+        rejoined,
+      })
 
   return c.json(
     {
@@ -354,6 +359,44 @@ groupsRoute.post('/:id/leave', async (c) => {
     displayName: member.displayName,
   })
   return c.json({ group })
+})
+
+groupsRoute.post('/:id/nudge', async (c) => {
+  const member = c.get('member')
+  const groupId = c.req.param('id')
+  requireGroupAccess(member, groupId)
+
+  const body = await c.req.json().catch(() => null)
+  const toMemberId =
+    body && typeof body === 'object' && typeof (body as { toMemberId?: unknown }).toMemberId === 'string'
+      ? (body as { toMemberId: string }).toMemberId
+      : ''
+  if (!toMemberId) {
+    throw new HttpError(400, 'toMemberId is required')
+  }
+  if (toMemberId === member.id) {
+    throw new HttpError(400, 'Pick someone else to notify')
+  }
+
+  const [target] = await db
+    .select({ id: members.id })
+    .from(members)
+    .where(and(eq(members.id, toMemberId), eq(members.groupId, groupId), isNull(members.leftAt)))
+    .limit(1)
+  if (!target) {
+    throw new HttpError(404, 'That person is not in this group')
+  }
+
+  const [group] = await db.select({ name: groups.name }).from(groups).where(eq(groups.id, groupId)).limit(1)
+  publish(groupId, {
+    event: 'nudge',
+    groupId,
+    fromMemberId: member.id,
+    toMemberId,
+    displayName: member.displayName,
+    groupName: group?.name ?? 'Split group',
+  })
+  return c.json({ ok: true })
 })
 
 groupsRoute.post('/:id/expenses', async (c) => {

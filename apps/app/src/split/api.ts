@@ -101,6 +101,14 @@ export function leaveGroup(groupId: string, token: string) {
   return request<{ group: SplitGroup }>(`/groups/${groupId}/leave`, { method: 'POST', token })
 }
 
+export function sendNudge(groupId: string, token: string, toMemberId: string) {
+  return request<{ ok: true }>(`/groups/${groupId}/nudge`, {
+    method: 'POST',
+    token,
+    body: { toMemberId },
+  })
+}
+
 export function inviteJoinPath(code: string) {
   return `/splits/join?code=${encodeURIComponent(code)}`
 }
