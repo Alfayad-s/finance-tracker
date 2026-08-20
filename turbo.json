@@ -1,5 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalPassThroughEnv": ["DATABASE_URL", "APP_ORIGIN", "PORT", "NODE_ENV"],
   "tasks": {
     "dev": {
       "cache": false,
@@ -11,7 +12,8 @@
     },
     "lint": {},
     "db:migrate": {
-      "cache": false
+      "cache": false,
+      "passThroughEnv": ["DATABASE_URL"]
     }
   }
 }
