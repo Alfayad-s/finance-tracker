@@ -61,6 +61,10 @@ async function uniqueInviteCode() {
   throw new HttpError(500, 'Could not create an invite code')
 }
 
+function samePersonName(a: string, b: string) {
+  return a.trim().toLowerCase() === b.trim().toLowerCase()
+}
+
 async function groupPayload(groupId: string) {
   const [group] = await db.select().from(groups).where(eq(groups.id, groupId)).limit(1)
   if (!group) throw new HttpError(404, 'Group not found')
@@ -86,21 +90,33 @@ async function groupPayload(groupId: string) {
     })),
   )
 
+  const visibleMembers = groupMembers.filter((row) => {
+    if (!row.leftAt) return true
+    const twin = groupMembers.find(
+      (other) => !other.leftAt && other.id !== row.id && samePersonName(other.displayName, row.displayName),
+    )
+    if (!twin) return true
+    const leftNet = balances.find((item) => item.memberId === row.id)?.netCents ?? 0
+    return leftNet !== 0
+  })
+  const visibleIds = new Set(visibleMembers.map((row) => row.id))
+  const visibleBalances = balances.filter((row) => visibleIds.has(row.memberId))
+
   return {
     id: group.id,
     name: group.name,
     currency: group.currency,
     inviteCode: group.inviteCode,
     createdAt: group.createdAt,
-    members: groupMembers.map((row) => ({
+    members: visibleMembers.map((row) => ({
       id: row.id,
       displayName: row.displayName,
       role: row.role,
       leftAt: row.leftAt,
       createdAt: row.createdAt,
     })),
-    balances,
-    simplified: simplifyDebts(balances),
+    balances: visibleBalances,
+    simplified: simplifyDebts(visibleBalances),
     expenses: groupExpenses.map((row) => ({
       id: row.id,
       paidByMemberId: row.paidByMemberId,
@@ -186,15 +202,43 @@ export async function joinGroup(c: Context) {
     throw new HttpError(404, 'Invite code not found')
   }
 
-  const memberId = newId()
+  const existing = await db.select().from(members).where(eq(members.groupId, found.id))
+  const sameName = existing.filter((row) => samePersonName(row.displayName, displayName))
+  const active = sameName.find((row) => !row.leftAt)
+  const leftover = [...sameName]
+    .filter((row) => row.leftAt)
+    .sort((a, b) => new Date(b.leftAt ?? 0).getTime() - new Date(a.leftAt ?? 0).getTime())[0]
+
   const sessionToken = newSessionToken()
-  await db.insert(members).values({
-    id: memberId,
-    groupId: found.id,
-    displayName,
-    role: 'member',
-    sessionTokenHash: hashToken(sessionToken),
-  })
+  let memberId: string
+
+  if (active) {
+    memberId = active.id
+    await db
+      .update(members)
+      .set({ sessionTokenHash: hashToken(sessionToken), displayName })
+      .where(eq(members.id, active.id))
+  } else if (leftover) {
+    memberId = leftover.id
+    await db
+      .update(members)
+      .set({
+        leftAt: null,
+        role: leftover.role === 'owner' ? 'member' : leftover.role,
+        sessionTokenHash: hashToken(sessionToken),
+        displayName,
+      })
+      .where(eq(members.id, leftover.id))
+  } else {
+    memberId = newId()
+    await db.insert(members).values({
+      id: memberId,
+      groupId: found.id,
+      displayName,
+      role: 'member',
+      sessionTokenHash: hashToken(sessionToken),
+    })
+  }
 
   const group = await emitGroup(found.id, 'member_joined', {
     memberId,
