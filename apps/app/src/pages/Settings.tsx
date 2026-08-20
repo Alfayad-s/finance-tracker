@@ -177,8 +177,15 @@ export function SettingsPage() {
       <section className="overflow-hidden rounded-2xl border border-blue-100 bg-white">
         <h2 className="px-4 pt-4 text-sm font-semibold text-slate-900">Data</h2>
         <Link
-          to="/settings/categories"
+          to="/splits"
           className="flex items-center justify-between px-4 py-3 text-sm text-slate-700"
+        >
+          Split with friends
+          <ChevronRight className="size-4 text-slate-400" aria-hidden />
+        </Link>
+        <Link
+          to="/settings/categories"
+          className="flex items-center justify-between border-t border-blue-50 px-4 py-3 text-sm text-slate-700"
         >
           Categories
           <ChevronRight className="size-4 text-slate-400" aria-hidden />
@@ -226,10 +233,10 @@ export function SettingsPage() {
       <section className="rounded-2xl border border-blue-100 bg-white px-4 py-4">
         <h2 className="text-sm font-semibold text-slate-900">Privacy</h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-500">
-          Finance Tracker never sends your money data anywhere. Transactions,
-          categories, and settings live in this browser only. There is no login
-          and no analytics. An optional PIN or device unlock (Face ID / fingerprint)
-          only hides the screen on this device; it does not encrypt your data.
+          Finance Tracker never sends your personal money data anywhere. Transactions,
+          categories, and settings live in this browser only. Split groups (invite code +
+          shared bills) are the only feature that uses a server. An optional PIN or device
+          unlock only hides the screen on this device; it does not encrypt your data.
         </p>
         <p className="mt-3 text-xs text-slate-400">Version 0.1.0</p>
       </section>

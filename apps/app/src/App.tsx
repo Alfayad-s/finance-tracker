@@ -54,6 +54,14 @@ const CsvImportPage = lazy(async () => {
   const module = await import('@/pages/CsvImport')
   return { default: module.CsvImportPage }
 })
+const SplitsPage = lazy(async () => {
+  const module = await import('@/pages/Splits')
+  return { default: module.SplitsPage }
+})
+const SplitGroupPage = lazy(async () => {
+  const module = await import('@/pages/SplitGroup')
+  return { default: module.SplitGroupPage }
+})
 
 function PageFallback() {
   return (
@@ -100,6 +108,8 @@ export default function App() {
             <Route path="/settings/review" element={<ReviewsPage />} />
             <Route path="/settings/backup" element={<BackupPage />} />
             <Route path="/settings/import" element={<CsvImportPage />} />
+            <Route path="/splits" element={<SplitsPage />} />
+            <Route path="/splits/:id" element={<SplitGroupPage />} />
           </Route>
         </Routes>
       )}

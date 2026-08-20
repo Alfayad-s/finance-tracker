@@ -1,28 +1,32 @@
 # Finance Tracker
 
-A calm, private, offline-first personal finance manager. All data stays on this device (IndexedDB via Dexie). There is no account and no server.
+Turborepo with two apps:
+
+- **`apps/app`** — Vite PWA. Personal money stays on this device.
+- **`apps/api`** — Split groups API (Postgres / Neon). The only cloud data.
 
 ## Develop
 
 ```bash
 npm install
+cp apps/api/.env.example apps/api/.env   # Neon DATABASE_URL
+npm run db:migrate
 npm run dev
+```
+
+That runs the PWA and the API together. Separate:
+
+```bash
+npm run dev:app
+npm run dev:api
 ```
 
 ## Build
 
 ```bash
 npm run build
-npm run preview
 ```
-
-The app is a Progressive Web App. After the first visit it works offline. Chrome and Edge show an **Install** button on Home and in Settings; on iPhone use Share → Add to Home Screen.
 
 ## Deploy on Vercel
 
-1. Push this repo to GitHub (`git@github.com:Alfayad-s/finance-tracker.git`).
-2. In [Vercel](https://vercel.com/new), import that repository.
-3. Use the defaults: **Framework preset** Vite, **Build command** `npm run build`, **Output directory** `dist`.
-4. Deploy. The live URL is HTTPS, which is required for install and the service worker.
-
-Local data stays in each visitor's browser (IndexedDB). It is not stored on Vercel.
+Import the GitHub repo. Build command and output directory are in the root `vercel.json` (`turbo run build --filter=app`, `apps/app/dist`). Host `apps/api` separately (Railway, Render, Fly) and set `VITE_SPLIT_API_URL` on the PWA build plus `APP_ORIGIN` on the API.

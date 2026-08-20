@@ -14,6 +14,7 @@ function titleFor(pathname: string): string {
   if (pathname.startsWith('/settings/review')) return 'Monthly review'
   if (pathname.startsWith('/settings/backup')) return 'Export & import'
   if (pathname.startsWith('/settings/import')) return 'Bank statement import'
+  if (pathname.startsWith('/splits')) return 'Splits'
   if (pathname.startsWith('/settings')) return 'Settings'
   return 'Finance Tracker'
 }

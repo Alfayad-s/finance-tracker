@@ -1,5 +1,6 @@
 import { Dexie, type EntityTable } from 'dexie'
 import type { Budget, Category, Goal, ImportRule, MonthlyReview, RecurringRule, Settings, Transaction } from '@/types'
+import type { SplitSession } from '@/split/types'
 import { DB_NAME } from './constants'
 
 export const db = new Dexie(DB_NAME) as Dexie & {
@@ -11,6 +12,7 @@ export const db = new Dexie(DB_NAME) as Dexie & {
   recurringRules: EntityTable<RecurringRule, 'id'>
   monthlyReviews: EntityTable<MonthlyReview, 'id'>
   importRules: EntityTable<ImportRule, 'id'>
+  splitSessions: EntityTable<SplitSession, 'groupId'>
 }
 
 db.version(1).stores({
@@ -34,4 +36,8 @@ db.version(3).stores({
 
 db.version(4).stores({
   importRules: 'id, keyword, categoryId',
+})
+
+db.version(5).stores({
+  splitSessions: 'groupId, memberId',
 })

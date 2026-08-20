@@ -1,5 +1,8 @@
 {
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "buildCommand": "npx turbo run build --filter=app",
+  "outputDirectory": "apps/app/dist",
+  "installCommand": "npm install",
   "headers": [
     {
       "source": "/sw.js",

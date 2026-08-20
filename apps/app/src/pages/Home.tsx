@@ -1,5 +1,5 @@
 import { lazy, Suspense, useMemo, useState } from 'react'
-import { Plus, Settings } from 'lucide-react'
+import { Plus, Settings, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import {
   useCategories,
@@ -177,6 +177,21 @@ export function Home() {
       </header>
 
       <InstallBanner />
+
+      <Link
+        to="/splits"
+        className="flex items-center justify-between rounded-2xl border border-blue-100 bg-white px-4 py-3"
+      >
+        <span className="flex items-center gap-3">
+          <span className="flex size-10 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+            <Users className="size-4" aria-hidden />
+          </span>
+          <span>
+            <span className="block text-sm font-medium text-slate-900">Split with friends</span>
+            <span className="block text-xs text-slate-400">Shared bills. Not your personal ledger.</span>
+          </span>
+        </span>
+      </Link>
 
       <BalanceCard
         balance={overview.monthTotals.net}

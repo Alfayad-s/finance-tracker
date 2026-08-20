@@ -97,14 +97,15 @@ No accounts, no cloud, no tracking — just a fast and beautiful tool to track i
 - [x] Optional local PIN lock
 - [x] Optional Face ID / fingerprint unlock (WebAuthn)
 - [x] Hide amounts (tap to reveal balances and totals)
+- [x] Cash split **API** (invite link + display name, groups, equal/custom shares, settle). Personal tracker data stays on-device. PWA screens are not in this backend-only slice.
 
 
 
 ### 3.4 Explicitly Out of Scope
 
 - Bank / SMS auto-import (manual CSV/Excel/PDF file import is supported; no bank login or SMS)
-- Cloud sync
-- Multi-user / sharing
+- Cloud sync of personal transactions, budgets, or goals
+- Accounts / email login (split groups use invite links only)
 - Investment tracking
 - Net worth
 - Push notifications for bills
@@ -130,13 +131,15 @@ No accounts, no cloud, no tracking — just a fast and beautiful tool to track i
 | Forms            | **React Hook Form**          | Excellent performance & validation                    | Formik                                                |
 | Date Utilities   | **date-fns**                 | Lightweight and modular                               | Moment.js (heavy & legacy), Day.js                    |
 | Routing          | **React Router DOM**         | Standard and reliable                                 | —                                                     |
+| Split API        | **Hono + Postgres**          | Groups, shared expenses, settle-up only               | Putting personal money in the cloud (rejected)        |
 
 
 
 
 ### Why this stack?
 
-- Fully client-side → perfect privacy
+- Personal tracker is fully client-side → privacy for money data
+- Split groups are the only cloud data (`apps/api`)
 - Tiny bundle size possible
 - Excellent offline support
 - Very fast development velocity
@@ -169,9 +172,9 @@ No accounts, no cloud, no tracking — just a fast and beautiful tool to track i
 
 **Key Characteristics:**
 
-- No backend
-- No authentication
-- No external API calls (except optional currency rates later)
+- Personal money: no backend — Dexie on this device
+- Split groups: optional Hono API (`apps/api`) stores only members, expenses, shares, and settlements
+- No email accounts; split identity is an invite code + display name + hashed session token
 - Service Worker handles caching & updates
 
 ---
@@ -504,7 +507,7 @@ All Phase 3 in-scope items from this document are done.
 ### Out of scope (do not build)
 
 - Bank / SMS auto-import (manual file import is enough)
-- Cloud sync, multi-user, investments, net worth
+- Cloud sync of personal money data, investments, net worth
 - Push notifications for bills
 - AI predictions
 
@@ -540,6 +543,17 @@ npm install -D vite-plugin-pwa
 ```
 
 Then configure Tailwind, Vite PWA plugin, and Dexie as documented in the implementation guides.
+
+Split API (groups only):
+
+```bash
+cd apps/api
+cp .env.example .env   # set DATABASE_URL and APP_ORIGIN
+npm install
+npm run db:migrate
+npm run dev
+```
+
 
 ---
 

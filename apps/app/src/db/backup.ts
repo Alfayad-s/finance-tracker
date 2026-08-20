@@ -78,8 +78,9 @@ async function clearAllTables() {
 }
 
 export async function resetAppData(): Promise<void> {
-  await db.transaction('rw', [...ALL_TABLES], async () => {
+  await db.transaction('rw', [...ALL_TABLES, db.splitSessions], async () => {
     await clearAllTables()
+    await db.splitSessions.clear()
     await db.settings.put(DEFAULT_SETTINGS)
     await db.categories.bulkPut(DEFAULT_CATEGORIES)
   })
