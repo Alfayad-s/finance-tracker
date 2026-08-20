@@ -1,4 +1,8 @@
-import type { AuthGroupResponse, SplitGroup } from './types'
+import type { AuthGroupResponse, SplitGroup, SplitRealtimeMessage } from './types'
+
+export function fetchNudges(groupId: string, token: string) {
+  return request<{ nudges: SplitRealtimeMessage[] }>(`/groups/${groupId}/nudges`, { token })
+}
 
 const base = (import.meta.env.VITE_SPLIT_API_URL ?? 'http://localhost:8787').replace(/\/$/, '')
 

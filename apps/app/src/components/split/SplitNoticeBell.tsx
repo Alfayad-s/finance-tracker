@@ -16,7 +16,6 @@ export function SplitNoticeBell() {
         type="button"
         aria-label={unread ? `${unread} unread split notifications` : 'Split notifications'}
         onClick={() => {
-          if (getSoundPref() !== 'off') enableSoundFromUserGesture()
           setOpen((current) => !current)
         }}
         className="fixed top-5 right-4 z-40 inline-flex size-10 items-center justify-center rounded-full bg-white text-slate-700 shadow-[0_8px_24px_rgb(0,0,0,0.08)]"

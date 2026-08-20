@@ -7,7 +7,7 @@ import { hashToken, newId, newInviteCode, newSessionToken } from '../lib/crypto'
 import { HttpError } from '../lib/errors'
 import { customShareCents, equalShareCents } from '../lib/splits'
 import { requireGroupAccess, requireMember, type AuthedMember } from '../middleware/auth'
-import { publish } from '../realtime'
+import { enqueueForMember, memberRoom, publish, takePendingForMember } from '../realtime'
 
 type AppEnv = { Variables: { member: AuthedMember } }
 
@@ -388,15 +388,26 @@ groupsRoute.post('/:id/nudge', async (c) => {
   }
 
   const [group] = await db.select({ name: groups.name }).from(groups).where(eq(groups.id, groupId)).limit(1)
-  publish(groupId, {
+  const payload = {
     event: 'nudge',
+    id: newId(),
     groupId,
     fromMemberId: member.id,
     toMemberId,
     displayName: member.displayName,
     groupName: group?.name ?? 'Split group',
-  })
+  }
+  enqueueForMember(toMemberId, payload)
+  publish(memberRoom(toMemberId), payload)
+  publish(groupId, payload)
   return c.json({ ok: true })
+})
+
+groupsRoute.get('/:id/nudges', async (c) => {
+  const member = c.get('member')
+  const groupId = c.req.param('id')
+  requireGroupAccess(member, groupId)
+  return c.json({ nudges: takePendingForMember(member.id) })
 })
 
 groupsRoute.post('/:id/expenses', async (c) => {

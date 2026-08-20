@@ -67,6 +67,7 @@ export interface SplitSession {
 
 export interface SplitRealtimeMessage {
   event: string
+  id?: string
   group?: SplitGroup
   memberId?: string
   displayName?: string

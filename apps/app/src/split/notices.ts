@@ -38,7 +38,8 @@ export function noticeCopy(
   if (!groupId) return null
 
   if (message.event === 'nudge') {
-    if (message.toMemberId !== session.memberId) return null
+    const mine = message.toMemberId === session.memberId
+    if (!mine) return null
     return {
       title: 'Someone is calling you',
       body: `${message.displayName ?? 'A friend'} wants your attention in ${groupName}`,

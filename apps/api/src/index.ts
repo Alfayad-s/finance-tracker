@@ -6,7 +6,7 @@ import { WebSocketServer, type WebSocket } from 'ws'
 import './env'
 import { isHttpError } from './lib/errors'
 import { findMemberByToken } from './middleware/auth'
-import { joinRoom, leaveRoom } from './realtime'
+import { joinRoom, leaveRoom, takePendingForMember } from './realtime'
 import { groupsRoute, joinGroup } from './routes/groups'
 
 const origin = process.env.APP_ORIGIN ?? 'http://localhost:5173'
@@ -65,9 +65,14 @@ sockets.on('connection', (ws: WebSocket, request: IncomingMessage) => {
       return
     }
     joinRoom(member.groupId, ws)
+    joinRoom(`member:${member.id}`, ws)
     ws.send(JSON.stringify({ event: 'connected', groupId: member.groupId, memberId: member.id }))
+    for (const pending of takePendingForMember(member.id)) {
+      ws.send(JSON.stringify(pending))
+    }
     ws.on('close', () => {
       leaveRoom(member.groupId, ws)
+      leaveRoom(`member:${member.id}`, ws)
     })
   })()
 })

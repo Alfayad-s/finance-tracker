@@ -47,10 +47,37 @@ function resumeContextFromGesture() {
   }
 }
 
-export function enableSoundFromUserGesture() {
+export function unlockSoundWithoutPlaying() {
+  resumeContextFromGesture()
+  if (!primed) primed = makePlayer()
+  const player = primed
+  player.muted = true
+  player.volume = 0
+  void player
+    .play()
+    .then(() => {
+      player.pause()
+      player.currentTime = 0
+      player.muted = false
+      player.volume = 1
+    })
+    .catch(() => {
+      player.muted = false
+      player.volume = 1
+    })
+}
+
+export function enableSoundFromUserGesture(playSample = true) {
   setSoundPref('on')
   resumeContextFromGesture()
   if (!primed) primed = makePlayer()
+  if (!playSample) {
+    unlockSoundWithoutPlaying()
+    if ('Notification' in window && Notification.permission === 'default') {
+      void Notification.requestPermission()
+    }
+    return
+  }
   primed.currentTime = 0
   primed.muted = false
   primed.volume = 1
