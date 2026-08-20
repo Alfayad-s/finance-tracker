@@ -60,7 +60,7 @@ sockets.on('connection', (ws: WebSocket, request: IncomingMessage) => {
     const url = new URL(request.url ?? '/', `http://${host}`)
     const token = url.searchParams.get('token') ?? ''
     const member = await findMemberByToken(token)
-    if (!member) {
+    if (!member || member.leftAt) {
       ws.close()
       return
     }

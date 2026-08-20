@@ -97,6 +97,27 @@ export function updateGroup(
   return request<{ group: SplitGroup }>(`/groups/${groupId}`, { method: 'PATCH', token, body })
 }
 
+export function leaveGroup(groupId: string, token: string) {
+  return request<{ group: SplitGroup }>(`/groups/${groupId}/leave`, { method: 'POST', token })
+}
+
+export function inviteJoinPath(code: string) {
+  return `/splits/join?code=${encodeURIComponent(code)}`
+}
+
+export function parseInvitePayload(raw: string) {
+  const text = raw.trim()
+  try {
+    const url = new URL(text)
+    const code = url.searchParams.get('code')
+    if (code) return code.toUpperCase()
+  } catch {
+    /* not a URL */
+  }
+  const match = text.match(/[A-Z0-9]{8}/i)
+  return (match?.[0] ?? text).toUpperCase()
+}
+
 export function rupeesToCents(value: string) {
   const amount = Number(value.replace(/,/g, '').trim())
   if (!Number.isFinite(amount) || amount <= 0) return null

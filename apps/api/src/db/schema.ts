@@ -25,6 +25,7 @@ export const members = pgTable(
     displayName: text('display_name').notNull(),
     role: memberRoleEnum('role').notNull().default('member'),
     sessionTokenHash: text('session_token_hash').notNull(),
+    leftAt: timestamp('left_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [

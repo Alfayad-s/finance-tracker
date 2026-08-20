@@ -109,6 +109,7 @@ export default function App() {
             <Route path="/settings/backup" element={<BackupPage />} />
             <Route path="/settings/import" element={<CsvImportPage />} />
             <Route path="/splits" element={<SplitsPage />} />
+            <Route path="/splits/join" element={<SplitsPage />} />
             <Route path="/splits/:id" element={<SplitGroupPage />} />
           </Route>
         </Routes>

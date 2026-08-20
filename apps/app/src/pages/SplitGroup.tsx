@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Loader } from '@/components/ui/Loader'
+import { InviteQr } from '@/components/split/InviteQr'
 import { SplitSheet } from '@/components/split/SplitSheet'
 import { formatCurrency } from '@/utils/currency'
 import { todayISO } from '@/utils/date'
@@ -15,6 +16,7 @@ import {
   centsToAmount,
   deleteExpense,
   fetchGroup,
+  leaveGroup,
   rupeesToCents,
 } from '@/split/api'
 import { getSplitSession, removeSplitSession, saveSplitSession } from '@/split/sessions'
@@ -31,8 +33,9 @@ export function SplitGroupPage() {
   const [session, setSession] = useState<SplitSession | null | undefined>(undefined)
   const [group, setGroup] = useState<SplitGroup | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [sheet, setSheet] = useState<'expense' | 'settle' | null>(null)
+  const [sheet, setSheet] = useState<'expense' | 'settle' | 'invite' | null>(null)
   const [pendingDelete, setPendingDelete] = useState<string | null>(null)
+  const [pendingLeave, setPendingLeave] = useState(false)
   const [busy, setBusy] = useState(false)
 
   const [amount, setAmount] = useState('')
@@ -71,6 +74,10 @@ export function SplitGroupPage() {
         void saveSplitSession({ ...session, groupName: message.group.name })
       }
     }
+    if (message.event === 'member_left' && message.displayName && message.memberId !== session?.memberId) {
+      setLiveNote(`${message.displayName} left the group`)
+      window.setTimeout(() => setLiveNote(null), 4000)
+    }
     if (message.event === 'member_joined' && message.displayName && message.memberId !== session?.memberId) {
       setLiveNote(`${message.displayName} joined the group`)
       window.setTimeout(() => setLiveNote(null), 4000)
@@ -97,8 +104,10 @@ export function SplitGroupPage() {
     setNote('')
     setPaidBy(session.memberId)
     setSplitType('equal')
-    setIncluded(group.members.map((member) => member.id))
-    setCustomShares(Object.fromEntries(group.members.map((member) => [member.id, ''])))
+    setIncluded(group.members.filter((member) => !member.leftAt).map((member) => member.id))
+    setCustomShares(
+      Object.fromEntries(group.members.filter((member) => !member.leftAt).map((member) => [member.id, ''])),
+    )
     setSheet('expense')
   }
 
@@ -193,6 +202,22 @@ export function SplitGroupPage() {
     }
   }
 
+  async function confirmLeave() {
+    if (!id || !session) return
+    setBusy(true)
+    setError(null)
+    try {
+      await leaveGroup(id, session.sessionToken)
+      await removeSplitSession(id)
+      navigate('/splits')
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Could not leave')
+    } finally {
+      setBusy(false)
+      setPendingLeave(false)
+    }
+  }
+
   if (session === undefined) {
     return (
       <Loader
@@ -255,33 +280,51 @@ export function SplitGroupPage() {
         </div>
       </header>
 
-      <div className="flex gap-2">
-        <Button type="button" className="flex-1" onClick={() => void navigator.clipboard.writeText(group.inviteCode)}>
-          Copy invite
+      <div className="grid grid-cols-2 gap-2">
+        <Button type="button" onClick={() => setSheet('invite')}>
+          Invite QR
         </Button>
-        <Button
-          className="flex-1 bg-slate-100 text-slate-700"
-          onClick={() => {
-            void removeSplitSession(group.id).then(() => navigate('/splits'))
-          }}
-        >
-          Remove here
+        <Button className="bg-red-50 text-red-700" onClick={() => setPendingLeave(true)}>
+          Leave group
         </Button>
       </div>
       <p className="text-xs text-slate-400">
-        Remove here only forgets this group on this phone. Friends keep the group on the server.
+        Leave tells everyone in realtime. Your old splits stay on the balance sheet.
       </p>
 
       <section className="rounded-2xl border border-blue-100 bg-white px-4 py-4">
-        <h2 className="text-sm font-semibold text-slate-900">Balances</h2>
+        <h2 className="text-sm font-semibold text-slate-900">Balance sheet</h2>
+        <ul className="mt-3 divide-y divide-blue-50">
+          {group.balances.map((row) => {
+            const person = memberName(group, row.memberId)
+            const left = group.members.find((member) => member.id === row.memberId)?.leftAt
+            const amount = formatCurrency(centsToAmount(Math.abs(row.netCents)), currency)
+            let status = 'Settled'
+            if (row.netCents > 0) status = `Gets ${amount}`
+            if (row.netCents < 0) status = `Owes ${amount}`
+            return (
+              <li key={row.memberId} className="flex items-center justify-between py-2 text-sm">
+                <span className="text-slate-800">
+                  {person}
+                  {row.memberId === you ? ' (you)' : ''}
+                  {left ? ' · left' : ''}
+                </span>
+                <span className={row.netCents < 0 ? 'text-red-600' : row.netCents > 0 ? 'text-blue-700' : 'text-slate-400'}>
+                  {status}
+                </span>
+              </li>
+            )
+          })}
+        </ul>
+        <h3 className="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-400">To settle</h3>
         {group.simplified.length === 0 ? (
           <p className="mt-2 text-sm text-slate-500">Everyone is settled.</p>
         ) : (
-          <ul className="mt-3 space-y-2">
+          <ul className="mt-2 space-y-2">
             {group.simplified.map((row) => (
               <li key={`${row.fromMemberId}-${row.toMemberId}`} className="text-sm text-slate-700">
                 <span className="font-medium">{memberName(group, row.fromMemberId)}</span>
-                {' owes '}
+                {' pays '}
                 <span className="font-medium">{memberName(group, row.toMemberId)}</span>
                 {' '}
                 {formatCurrency(centsToAmount(row.amountCents), currency)}
@@ -307,6 +350,7 @@ export function SplitGroupPage() {
               <span className="text-slate-800">
                 {member.displayName}
                 {member.id === you ? ' (you)' : ''}
+                {member.leftAt ? ' · left' : ''}
               </span>
               <span className="text-xs text-slate-400">{member.role}</span>
             </li>
@@ -350,8 +394,15 @@ export function SplitGroupPage() {
                       {expense.note || 'Shared expense'}
                     </p>
                     <p className="mt-0.5 text-xs text-slate-400">
-                      {names.get(expense.paidByMemberId)} paid · {expense.date}
+                      {names.get(expense.paidByMemberId)} paid · {expense.date} · {expense.splitType}
                     </p>
+                    <ul className="mt-2 space-y-0.5 text-xs text-slate-500">
+                      {expense.shares.map((share) => (
+                        <li key={share.memberId}>
+                          {names.get(share.memberId)} · {formatCurrency(centsToAmount(share.shareCents), currency)}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                   <p className="text-sm font-medium text-slate-900">
                     {formatCurrency(centsToAmount(expense.amountCents), currency)}
@@ -371,6 +422,23 @@ export function SplitGroupPage() {
           </ul>
         )}
       </section>
+
+      {group.settlements.length > 0 ? (
+        <section>
+          <h2 className="text-sm font-semibold text-slate-900">Settle-ups</h2>
+          <ul className="mt-2 overflow-hidden rounded-2xl border border-blue-100 bg-white">
+            {[...group.settlements].reverse().map((row, index) => (
+              <li
+                key={row.id}
+                className={`px-4 py-3 text-sm text-slate-700 ${index === 0 ? '' : 'border-t border-blue-50'}`}
+              >
+                {memberName(group, row.fromMemberId)} paid {memberName(group, row.toMemberId)}{' '}
+                {formatCurrency(centsToAmount(row.amountCents), currency)}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <SplitSheet
         open={sheet === 'expense'}
@@ -405,7 +473,7 @@ export function SplitGroupPage() {
             onChange={(event) => setPaidBy(event.target.value)}
             className="mt-1 w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-sm outline-none"
           >
-            {group.members.map((member) => (
+            {group.members.filter((member) => !member.leftAt).map((member) => (
               <option key={member.id} value={member.id}>
                 {member.displayName}
               </option>
@@ -428,7 +496,7 @@ export function SplitGroupPage() {
         </div>
         {splitType === 'equal' ? (
           <ul className="mt-3 space-y-2">
-            {group.members.map((member) => (
+            {group.members.filter((member) => !member.leftAt).map((member) => (
               <label key={member.id} className="flex items-center gap-2 text-sm text-slate-700">
                 <input
                   type="checkbox"
@@ -447,7 +515,7 @@ export function SplitGroupPage() {
           </ul>
         ) : (
           <ul className="mt-3 space-y-2">
-            {group.members.map((member) => (
+            {group.members.filter((member) => !member.leftAt).map((member) => (
               <label key={member.id} className="block text-sm text-slate-600">
                 {member.displayName}
                 <input
@@ -519,6 +587,14 @@ export function SplitGroupPage() {
         </Button>
       </SplitSheet>
 
+      <SplitSheet
+        open={sheet === 'invite'}
+        title="Invite friends"
+        onClose={() => setSheet(null)}
+      >
+        <InviteQr code={group.inviteCode} />
+      </SplitSheet>
+
       {pendingDelete ? (
         <ConfirmDialog
           title="Delete this expense?"
@@ -531,6 +607,22 @@ export function SplitGroupPage() {
             if (!busy) setPendingDelete(null)
           }}
           onConfirm={() => void confirmDeleteExpense()}
+        />
+      ) : null}
+
+      {pendingLeave ? (
+        <ConfirmDialog
+          title="Leave this group?"
+          description="Everyone still in the group will see that you left. Your past splits stay on the balance sheet."
+          confirmLabel="Leave"
+          busyLabel="Leaving…"
+          busy={busy}
+          danger
+          error={error}
+          onCancel={() => {
+            if (!busy) setPendingLeave(false)
+          }}
+          onConfirm={() => void confirmLeave()}
         />
       ) : null}
     </section>

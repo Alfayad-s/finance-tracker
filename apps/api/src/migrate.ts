@@ -1,3 +1,4 @@
+import { readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import postgres from 'postgres'
 import './env'
@@ -9,8 +10,13 @@ if (!url) {
 
 const neon = url.includes('neon.tech') || url.includes('sslmode=require')
 const sql = postgres(url, { max: 1, ssl: neon ? 'require' : false })
-const file = resolve(process.cwd(), 'drizzle/0000_init.sql')
+const dir = resolve(process.cwd(), 'drizzle')
+const files = readdirSync(dir)
+  .filter((name) => name.endsWith('.sql'))
+  .sort()
 
-await sql.file(file)
+for (const name of files) {
+  await sql.file(resolve(dir, name))
+}
 await sql.end()
 console.log('Split schema applied')

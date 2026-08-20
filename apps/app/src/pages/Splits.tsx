@@ -1,11 +1,12 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { ChevronRight, Users } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { ChevronRight, ScanLine, Users } from 'lucide-react'
 import { useSettings } from '@/db/hooks'
 import { Button } from '@/components/ui/Button'
 import { BackButton } from '@/components/ui/BackButton'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Loader } from '@/components/ui/Loader'
+import { QrJoinScanner } from '@/components/split/QrJoinScanner'
 import { SplitSheet } from '@/components/split/SplitSheet'
 import { createGroup, joinGroup } from '@/split/api'
 import { saveSplitSession, useSplitSessions } from '@/split/sessions'
@@ -14,13 +15,21 @@ export function SplitsPage() {
   const sessions = useSplitSessions()
   const settings = useSettings()
   const navigate = useNavigate()
-  const [sheet, setSheet] = useState<'create' | 'join' | null>(null)
+  const [sheet, setSheet] = useState<'create' | 'join' | 'scan' | null>(null)
   const [name, setName] = useState('')
   const [inviteCode, setInviteCode] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [searchParams] = useSearchParams()
 
   const profileName = settings?.displayName.trim() ?? ''
+
+  useEffect(() => {
+    const code = searchParams.get('code')
+    if (!code) return
+    setInviteCode(code.toUpperCase())
+    setSheet('join')
+  }, [searchParams])
 
   function openSheet(next: 'create' | 'join') {
     setError(null)
@@ -124,10 +133,20 @@ export function SplitsPage() {
         </div>
       </header>
 
-      <div className="grid grid-cols-2 gap-2">
-        <Button onClick={() => openSheet('create')}>New group</Button>
+      <div className="grid grid-cols-3 gap-2">
+        <Button onClick={() => openSheet('create')}>New</Button>
         <Button className="bg-slate-100 text-slate-700" onClick={() => openSheet('join')}>
           Join
+        </Button>
+        <Button
+          className="bg-slate-100 text-slate-700"
+          onClick={() => {
+            setError(null)
+            setSheet('scan')
+          }}
+        >
+          <ScanLine className="mr-1 size-4" aria-hidden />
+          Scan
         </Button>
       </div>
 
@@ -215,6 +234,24 @@ export function SplitsPage() {
         <Button className="mt-5 w-full" disabled={busy || !profileName} onClick={() => void handleJoin()}>
           {busy ? 'Joining...' : 'Join group'}
         </Button>
+      </SplitSheet>
+
+      <SplitSheet
+        open={sheet === 'scan'}
+        title="Scan invite"
+        onClose={() => {
+          if (!busy) setSheet(null)
+        }}
+      >
+        <p className="mb-3 text-sm text-slate-500">Point the camera at a friend’s QR code.</p>
+        {sheet === 'scan' ? (
+          <QrJoinScanner
+            onCode={(code) => {
+              setInviteCode(code)
+              setSheet('join')
+            }}
+          />
+        ) : null}
       </SplitSheet>
     </section>
   )

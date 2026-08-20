@@ -1,4 +1,4 @@
-import { and, eq, inArray } from 'drizzle-orm'
+import { and, asc, eq, inArray, isNull, ne } from 'drizzle-orm'
 import { Hono, type Context } from 'hono'
 import { db } from '../db/client'
 import { expenseShares, expenses, groups, members, settlements } from '../db/schema'
@@ -96,6 +96,7 @@ async function groupPayload(groupId: string) {
       id: row.id,
       displayName: row.displayName,
       role: row.role,
+      leftAt: row.leftAt,
       createdAt: row.createdAt,
     })),
     balances,
@@ -279,6 +280,38 @@ groupsRoute.patch('/:id', async (c) => {
   return c.json({ group: await emitGroup(groupId, 'group_updated') })
 })
 
+groupsRoute.post('/:id/leave', async (c) => {
+  const member = c.get('member')
+  const groupId = c.req.param('id')
+  requireGroupAccess(member, groupId)
+
+  if (member.role === 'owner') {
+    const [nextOwner] = await db
+      .select({ id: members.id })
+      .from(members)
+      .where(and(eq(members.groupId, groupId), isNull(members.leftAt), ne(members.id, member.id)))
+      .orderBy(asc(members.createdAt))
+      .limit(1)
+    if (nextOwner) {
+      await db.update(members).set({ role: 'owner' }).where(eq(members.id, nextOwner.id))
+    }
+  }
+
+  await db
+    .update(members)
+    .set({
+      leftAt: new Date(),
+      sessionTokenHash: hashToken(newSessionToken()),
+    })
+    .where(eq(members.id, member.id))
+
+  const group = await emitGroup(groupId, 'member_left', {
+    memberId: member.id,
+    displayName: member.displayName,
+  })
+  return c.json({ group })
+})
+
 groupsRoute.post('/:id/expenses', async (c) => {
   const member = c.get('member')
   const groupId = c.req.param('id')
@@ -308,7 +341,10 @@ groupsRoute.post('/:id/expenses', async (c) => {
       ? (body as { date: string }).date
       : new Date().toISOString().slice(0, 10)
 
-  const groupMembers = await db.select({ id: members.id }).from(members).where(eq(members.groupId, groupId))
+  const groupMembers = await db
+    .select({ id: members.id })
+    .from(members)
+    .where(and(eq(members.groupId, groupId), isNull(members.leftAt)))
   const memberIds = new Set(groupMembers.map((row) => row.id))
   if (!memberIds.has(paidByMemberId)) {
     throw new HttpError(400, 'paidByMemberId is not in this group')

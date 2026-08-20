@@ -5,6 +5,7 @@ export interface SplitMember {
   id: string
   displayName: string
   role: SplitRole
+  leftAt?: string | Date | null
   createdAt: string
 }
 

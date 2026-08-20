@@ -10,6 +10,7 @@ export type AuthedMember = {
   groupId: string
   displayName: string
   role: 'owner' | 'member'
+  leftAt: Date | null
 }
 
 export async function findMemberByToken(token: string): Promise<AuthedMember | null> {
@@ -20,6 +21,7 @@ export async function findMemberByToken(token: string): Promise<AuthedMember | n
       groupId: members.groupId,
       displayName: members.displayName,
       role: members.role,
+      leftAt: members.leftAt,
     })
     .from(members)
     .where(eq(members.sessionTokenHash, hashToken(token)))
@@ -35,6 +37,9 @@ export const requireMember: MiddlewareHandler<{
   const member = await findMemberByToken(token)
   if (!member) {
     throw new HttpError(401, token ? 'Invalid session token' : 'Missing session token')
+  }
+  if (member.leftAt) {
+    throw new HttpError(403, 'You left this group')
   }
 
   c.set('member', member)
