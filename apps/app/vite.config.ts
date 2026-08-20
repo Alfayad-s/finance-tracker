@@ -16,6 +16,7 @@ export default defineConfig({
         globPatterns: ['**/*.{js,mjs,css,html,ico,png,svg,woff2,webmanifest,mp3}'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/\.mp3$/i],
       },
       manifest: {
         name: 'Finance Tracker',

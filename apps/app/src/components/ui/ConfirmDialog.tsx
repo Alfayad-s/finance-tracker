@@ -6,6 +6,7 @@ export function ConfirmDialog({
   title,
   description,
   confirmLabel,
+  cancelLabel = 'Cancel',
   busyLabel,
   busy = false,
   error,
@@ -16,6 +17,7 @@ export function ConfirmDialog({
   title: string
   description: string
   confirmLabel: string
+  cancelLabel?: string
   busyLabel?: string
   busy?: boolean
   error?: string | null
@@ -58,7 +60,7 @@ export function ConfirmDialog({
         ) : null}
         <div className="mt-5 grid grid-cols-2 gap-2">
           <Button className="bg-slate-100 text-slate-700" onClick={onCancel} disabled={busy}>
-            Cancel
+            {cancelLabel}
           </Button>
           <Button
             className={danger ? 'bg-red-600' : undefined}

@@ -22,7 +22,6 @@ import {
 } from '@/split/api'
 import { getSplitSession, removeSplitSession, saveSplitSession } from '@/split/sessions'
 import { subscribeSplitGroup } from '@/split/SplitLiveProvider'
-import { unlockNotificationSound } from '@/split/sound'
 import type { SplitGroup, SplitSession } from '@/split/types'
 
 function memberName(group: SplitGroup, id: string) {
@@ -193,7 +192,6 @@ export function SplitGroupPage() {
 
   async function pingMember(memberId: string) {
     if (!id || !session) return
-    unlockNotificationSound()
     setNudging(memberId)
     setError(null)
     try {

@@ -3,7 +3,7 @@ import { Bell } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { formatDistanceToNow } from 'date-fns'
 import { markAllNoticesRead, markNoticeRead, useSplitNotices } from '@/split/notices'
-import { unlockNotificationSound } from '@/split/sound'
+import { enableSoundFromUserGesture, getSoundPref } from '@/split/sound'
 
 export function SplitNoticeBell() {
   const notices = useSplitNotices() ?? []
@@ -16,10 +16,7 @@ export function SplitNoticeBell() {
         type="button"
         aria-label={unread ? `${unread} unread split notifications` : 'Split notifications'}
         onClick={() => {
-          unlockNotificationSound()
-          if ('Notification' in window && Notification.permission === 'default') {
-            void Notification.requestPermission()
-          }
+          if (getSoundPref() !== 'off') enableSoundFromUserGesture()
           setOpen((current) => !current)
         }}
         className="fixed top-5 right-4 z-40 inline-flex size-10 items-center justify-center rounded-full bg-white text-slate-700 shadow-[0_8px_24px_rgb(0,0,0,0.08)]"
@@ -36,7 +33,17 @@ export function SplitNoticeBell() {
           <div className="max-h-[55dvh] overflow-y-auto rounded-2xl border border-blue-100 bg-white p-3 shadow-xl">
             <div className="mb-2 flex items-center justify-between">
               <p className="text-sm font-semibold text-slate-900">Notifications</p>
-              {unread > 0 ? (
+              <div className="flex items-center gap-3">
+                {getSoundPref() === 'off' ? (
+                  <button
+                    type="button"
+                    className="text-xs font-medium text-blue-600"
+                    onClick={() => enableSoundFromUserGesture()}
+                  >
+                    Enable sound
+                  </button>
+                ) : null}
+                {unread > 0 ? (
                 <button
                   type="button"
                   className="text-xs font-medium text-blue-600"
@@ -44,7 +51,8 @@ export function SplitNoticeBell() {
                 >
                   Mark all read
                 </button>
-              ) : null}
+                ) : null}
+              </div>
             </div>
             {notices.length === 0 ? (
               <p className="py-6 text-center text-sm text-slate-500">No split alerts yet.</p>
