@@ -4,7 +4,6 @@ import { motion } from 'motion/react'
 import { generateDueRecurringTransactions } from '@/db/recurring'
 import { Loader } from '@/components/ui/Loader'
 import { Toast } from '@/components/ui/Toast'
-import { SplitNoticeBell } from '@/components/split/SplitNoticeBell'
 import { SoundPermissionDialog } from '@/components/split/SoundPermissionDialog'
 import { SplitLiveProvider } from '@/split/SplitLiveProvider'
 import { BottomNav } from './BottomNav'
@@ -68,7 +67,6 @@ export function AppLayout() {
         </motion.div>
       </main>
       <SoundPermissionDialog />
-      <SplitNoticeBell />
       <BottomNav onAdd={openQuickAdd} />
       {quickAddOpen ? (
         <Suspense fallback={null}>

@@ -5,10 +5,13 @@ import { LockScreen } from '@/components/LockScreen'
 import { UpdateBanner } from '@/components/UpdateBanner'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { Home } from '@/pages/Home'
+import { SetupWizard } from '@/pages/SetupWizard'
 import { Loader } from '@/components/ui/Loader'
 import { useHidePeekOnLeave } from '@/hooks/useAmountPrivacy'
 import { useLockOnLeave } from '@/hooks/useLockOnLeave'
 import { useLockStore } from '@/stores/lockStore'
+import { useSettings } from '@/db/hooks'
+import { useSettingsStore } from '@/stores/settingsStore'
 
 const Transactions = lazy(async () => {
   const module = await import('@/pages/Transactions')
@@ -33,6 +36,14 @@ const ProfilePage = lazy(async () => {
 const CategoriesPage = lazy(async () => {
   const module = await import('@/pages/Categories')
   return { default: module.CategoriesPage }
+})
+const AccountsPage = lazy(async () => {
+  const module = await import('@/pages/Accounts')
+  return { default: module.AccountsPage }
+})
+const AccountDetailPage = lazy(async () => {
+  const module = await import('@/pages/AccountDetail')
+  return { default: module.AccountDetailPage }
 })
 const RecurringPage = lazy(async () => {
   const module = await import('@/pages/Recurring')
@@ -78,6 +89,8 @@ export default function App() {
   useLockOnLeave()
   useHidePeekOnLeave()
   const locked = useLockStore((store) => store.enabled && !store.unlocked)
+  const settings = useSettings()
+  const hydrate = useSettingsStore((store) => store.hydrate)
 
   return (
     <>
@@ -85,6 +98,10 @@ export default function App() {
       <UpdateBanner />
       {locked ? (
         <LockScreen />
+      ) : !settings ? (
+        <PageFallback />
+      ) : !settings.accountsSetupComplete ? (
+        <SetupWizard onDone={() => void hydrate()} />
       ) : (
         <Routes>
           <Route
@@ -103,6 +120,8 @@ export default function App() {
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/settings/profile" element={<ProfilePage />} />
             <Route path="/settings/categories" element={<CategoriesPage />} />
+            <Route path="/settings/accounts" element={<AccountsPage />} />
+            <Route path="/accounts/:id" element={<AccountDetailPage />} />
             <Route path="/settings/recurring" element={<RecurringPage />} />
             <Route path="/settings/subscriptions" element={<RecurringPage />} />
             <Route path="/settings/review" element={<ReviewsPage />} />

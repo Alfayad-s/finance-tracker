@@ -12,6 +12,7 @@ export async function readBackup(): Promise<BackupFile> {
     goals,
     recurringRules,
     monthlyReviews,
+    accounts,
     settings,
   ] = await Promise.all([
     db.transactions.toArray(),
@@ -20,6 +21,7 @@ export async function readBackup(): Promise<BackupFile> {
     db.goals.toArray(),
     db.recurringRules.toArray(),
     db.monthlyReviews.toArray(),
+    db.accounts.toArray(),
     db.settings.toArray(),
   ])
 
@@ -35,6 +37,7 @@ export async function readBackup(): Promise<BackupFile> {
     goals,
     recurringRules,
     monthlyReviews,
+    accounts,
     settings: stripPinLock(appSettings),
   })
 }
@@ -50,6 +53,7 @@ export async function restoreBackup(backup: BackupFile): Promise<void> {
     if (backup.goals.length > 0) await db.goals.bulkPut(backup.goals)
     if (backup.recurringRules.length > 0) await db.recurringRules.bulkPut(backup.recurringRules)
     if (backup.monthlyReviews.length > 0) await db.monthlyReviews.bulkPut(backup.monthlyReviews)
+    if (backup.accounts && backup.accounts.length > 0) await db.accounts.bulkPut(backup.accounts)
     await db.settings.put({
       ...backup.settings,
       ...(previous?.pinHash && previous.pinSalt
@@ -71,6 +75,7 @@ const ALL_TABLES = [
   db.monthlyReviews,
   db.settings,
   db.importRules,
+  db.accounts,
 ] as const
 
 async function clearAllTables() {

@@ -12,6 +12,7 @@ export const DEFAULT_SETTINGS: Settings = {
   displayName: '',
   avatarId: 1,
   hideAmounts: false,
+  accountsSetupComplete: false,
 }
 
 export const DEFAULT_CATEGORIES: Category[] = [
@@ -48,13 +49,18 @@ export async function seedDatabase(): Promise<void> {
       avatarId: isAvatarId(existingSettings.avatarId) ? existingSettings.avatarId : 1,
       hideAmounts:
         typeof existingSettings.hideAmounts === 'boolean' ? existingSettings.hideAmounts : false,
+      accountsSetupComplete:
+        typeof existingSettings.accountsSetupComplete === 'boolean'
+          ? existingSettings.accountsSetupComplete
+          : (await db.transactions.count()) > 0,
     }
     if (
       existingSettings.theme !== next.theme ||
       existingSettings.softInsightsEnabled !== next.softInsightsEnabled ||
       existingSettings.displayName !== next.displayName ||
       existingSettings.avatarId !== next.avatarId ||
-      existingSettings.hideAmounts !== next.hideAmounts
+      existingSettings.hideAmounts !== next.hideAmounts ||
+      existingSettings.accountsSetupComplete !== next.accountsSetupComplete
     ) {
       await db.settings.put(next)
     }

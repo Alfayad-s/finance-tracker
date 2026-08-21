@@ -19,7 +19,7 @@ import { Amount, AmountPrivacyButton } from '@/components/Amount'
 import { Loader } from '@/components/ui/Loader'
 import { cn } from '@/lib/utils'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
-import { CATEGORY_ICON_NAMES, CategoryIcon } from '@/utils/categoryIcons'
+import { SymbolPicker } from '@/components/SymbolPicker'
 import { formatDisplayDate, todayISO } from '@/utils/date'
 import { totalsFor } from '@/utils/calculations'
 import type { Goal } from '@/types'
@@ -509,26 +509,8 @@ function GoalEditor({
           </label>
 
           <fieldset className="space-y-2">
-            <legend className="text-sm font-medium text-slate-700">Icon</legend>
-            <div className="grid grid-cols-7 gap-2">
-              {CATEGORY_ICON_NAMES.map((name) => (
-                <button
-                  key={name}
-                  type="button"
-                  onClick={() => setDraft({ ...draft, icon: name })}
-                  aria-label={name}
-                  aria-pressed={draft.icon === name}
-                  className={cn(
-                    'flex size-10 items-center justify-center rounded-full border',
-                    draft.icon === name
-                      ? 'border-blue-600 bg-blue-50 text-blue-700'
-                      : 'border-blue-100 text-slate-500',
-                  )}
-                >
-                  <CategoryIcon name={name} className="size-4" />
-                </button>
-              ))}
-            </div>
+            <legend className="text-sm font-medium text-slate-700">Icon or emoji</legend>
+            <SymbolPicker value={draft.icon} onChange={(icon) => setDraft({ ...draft, icon })} />
           </fieldset>
 
           <fieldset className="space-y-2">

@@ -13,7 +13,8 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { Loader } from '@/components/ui/Loader'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { cn } from '@/lib/utils'
-import { CATEGORY_ICON_NAMES, CategoryIcon } from '@/utils/categoryIcons'
+import { CategoryIcon } from '@/utils/categoryIcons'
+import { SymbolPicker } from '@/components/SymbolPicker'
 import type { Category, CategoryType } from '@/types'
 
 const COLORS = ['#2563eb', '#3b82f6', '#1d4ed8', '#60a5fa', '#1e40af', '#38bdf8', '#6366f1'] as const
@@ -335,26 +336,8 @@ function CategoryEditor({
           ) : null}
 
           <fieldset className="space-y-2">
-            <legend className="text-sm font-medium text-slate-700">Icon</legend>
-            <div className="grid grid-cols-7 gap-2">
-              {CATEGORY_ICON_NAMES.map((name) => (
-                <button
-                  key={name}
-                  type="button"
-                  onClick={() => setDraft({ ...draft, icon: name })}
-                  aria-label={name}
-                  aria-pressed={draft.icon === name}
-                  className={cn(
-                    'flex size-10 items-center justify-center rounded-full border',
-                    draft.icon === name
-                      ? 'border-blue-600 bg-blue-50 text-blue-700'
-                      : 'border-blue-100 text-slate-500',
-                  )}
-                >
-                  <CategoryIcon name={name} className="size-4" />
-                </button>
-              ))}
-            </div>
+            <legend className="text-sm font-medium text-slate-700">Icon or emoji</legend>
+            <SymbolPicker value={draft.icon} onChange={(icon) => setDraft({ ...draft, icon })} />
           </fieldset>
 
           <fieldset className="space-y-2">

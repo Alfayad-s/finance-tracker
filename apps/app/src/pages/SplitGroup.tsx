@@ -270,7 +270,7 @@ export function SplitGroupPage() {
     <section className="space-y-6">
       <header className="flex items-start gap-2">
         <BackButton to="/splits" label="Back to splits" />
-        <div className="min-w-0 flex-1 pr-12">
+        <div className="min-w-0 flex-1">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900">{group.name}</h1>
           <p className="mt-1 text-sm text-slate-500">
             Invite code <span className="font-medium tracking-widest text-slate-800">{group.inviteCode}</span>

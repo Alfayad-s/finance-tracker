@@ -177,8 +177,22 @@ export function SettingsPage() {
       <section className="overflow-hidden rounded-2xl border border-blue-100 bg-white">
         <h2 className="px-4 pt-4 text-sm font-semibold text-slate-900">Data</h2>
         <Link
-          to="/splits"
+          to="/transactions"
           className="flex items-center justify-between px-4 py-3 text-sm text-slate-700"
+        >
+          Activity
+          <ChevronRight className="size-4 text-slate-400" aria-hidden />
+        </Link>
+        <Link
+          to="/settings/accounts"
+          className="flex items-center justify-between border-t border-blue-50 px-4 py-3 text-sm text-slate-700"
+        >
+          Accounts & cards
+          <ChevronRight className="size-4 text-slate-400" aria-hidden />
+        </Link>
+        <Link
+          to="/splits"
+          className="flex items-center justify-between border-t border-blue-50 px-4 py-3 text-sm text-slate-700"
         >
           Split with friends
           <ChevronRight className="size-4 text-slate-400" aria-hidden />

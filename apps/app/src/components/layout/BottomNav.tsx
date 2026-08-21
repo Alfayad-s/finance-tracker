@@ -1,10 +1,10 @@
 import { useLayoutEffect, useRef } from 'react'
 import {
   Home,
-  List,
   PieChart,
   Plus,
   Target,
+  Users,
 } from 'lucide-react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { motion } from 'motion/react'
@@ -12,7 +12,7 @@ import gsap from 'gsap'
 
 const tabs = [
   { to: '/', label: 'Home', icon: Home, end: true },
-  { to: '/transactions', label: 'Activity', icon: List, end: false },
+  { to: '/splits', label: 'Splits', icon: Users, end: false },
   { to: '/budgets', label: 'Budgets', icon: PieChart, end: false },
   { to: '/goals', label: 'Goals', icon: Target, end: false },
 ] as const

@@ -100,10 +100,10 @@ export function Transactions() {
     <section className="space-y-5">
       <header className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-2">
-          <BackButton to="/" label="Back to home" />
+          <BackButton to="/settings" label="Back to settings" />
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
-              Transactions
+              Activity
             </h1>
             <p className="mt-1 text-sm text-slate-500">
               {filtered.length} {filtered.length === 1 ? 'entry' : 'entries'}

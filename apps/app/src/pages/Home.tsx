@@ -1,5 +1,5 @@
 import { lazy, Suspense, useMemo, useState } from 'react'
-import { Plus, Settings, Users } from 'lucide-react'
+import { Plus, Settings } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import {
   useCategories,
@@ -9,6 +9,8 @@ import {
   useRecentTransactions,
   useRecurringRules,
   useSettings,
+  useAccounts,
+  useTransactions,
   useTransactionCount,
   useTransactionsSince,
 } from '@/db/hooks'
@@ -16,9 +18,11 @@ import { BudgetProgress } from '@/components/BudgetProgress'
 import { SoftInsight } from '@/components/SoftInsight'
 import { InstallBanner } from '@/components/InstallApp'
 import { BalanceCard } from '@/components/BalanceCard'
+import { AccountCardSlider } from '@/components/AccountCardSlider'
 import { Amount, AmountPrivacyButton } from '@/components/Amount'
 import { useAmountHidden } from '@/hooks/useAmountPrivacy'
 import { AvatarFace, isAvatarId } from '@/components/avatars'
+import { SplitNoticeBell } from '@/components/split/SplitNoticeBell'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Loader } from '@/components/ui/Loader'
 import { TransactionDetail } from '@/components/TransactionDetail'
@@ -47,6 +51,8 @@ const SpendingTrendChart = lazy(async () => {
 export function Home() {
   const categories = useCategories()
   const settings = useSettings()
+  const accounts = useAccounts()
+  const allTransactions = useTransactions()
   const month = currentMonth()
   const lastMonth = previousMonth()
   const rangeStart = `${lastNMonths(6, month)[0]}-01`
@@ -81,6 +87,8 @@ export function Home() {
   if (
     !categories ||
     !settings ||
+    !accounts ||
+    !allTransactions ||
     !transactions ||
     !recent ||
     totalCount === undefined ||
@@ -166,6 +174,7 @@ export function Home() {
         </div>
         <div className="flex shrink-0 items-center">
           <AmountPrivacyButton />
+          <SplitNoticeBell />
           <Link
             to="/settings"
             aria-label="Settings"
@@ -178,27 +187,16 @@ export function Home() {
 
       <InstallBanner />
 
-      <Link
-        to="/splits"
-        className="flex items-center justify-between rounded-2xl border border-blue-100 bg-white px-4 py-3"
-      >
-        <span className="flex items-center gap-3">
-          <span className="flex size-10 items-center justify-center rounded-full bg-blue-50 text-blue-600">
-            <Users className="size-4" aria-hidden />
-          </span>
-          <span>
-            <span className="block text-sm font-medium text-slate-900">Split with friends</span>
-            <span className="block text-xs text-slate-400">Shared bills. Not your personal ledger.</span>
-          </span>
-        </span>
-      </Link>
-
-      <BalanceCard
-        balance={overview.monthTotals.net}
-        currency={currency}
-        month={month}
-        holder={displayName || 'This device'}
-      />
+      {accounts.length > 0 ? (
+        <AccountCardSlider accounts={accounts} transactions={allTransactions} currency={currency} />
+      ) : (
+        <BalanceCard
+          balance={overview.monthTotals.net}
+          currency={currency}
+          month={month}
+          holder={displayName || 'This device'}
+        />
+      )}
 
       {outgoing.length > 0 ? (
         <Link

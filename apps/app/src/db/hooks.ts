@@ -1,5 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import type {
+  Account,
   Budget,
   Category,
   Goal,
@@ -12,6 +13,7 @@ import type {
 } from '@/types'
 import { todayISO } from '@/utils/date'
 import { nextOccurrence } from '@/utils/recurring'
+import { defaultThemeFor } from '@/utils/accounts'
 import { SETTINGS_ID } from './constants'
 import { db } from './db'
 import { DEFAULT_SETTINGS } from './seed'
@@ -52,6 +54,43 @@ export function useMonthHasTransactions(month: string) {
 
 export function useCategories() {
   return useLiveQuery(() => db.categories.orderBy('order').toArray(), [])
+}
+
+export function useAccounts() {
+  return useLiveQuery(() => db.accounts.orderBy('createdAt').toArray(), [])
+}
+
+export function useAccount(id: string | undefined) {
+  return useLiveQuery(() => (id ? db.accounts.get(id) : undefined), [id])
+}
+
+export async function addAccount(
+  input: Omit<Account, 'id' | 'createdAt'> & { id?: string },
+): Promise<Account> {
+  const account: Account = {
+    ...input,
+    theme: input.theme ?? defaultThemeFor(input.type),
+    id: input.id ?? crypto.randomUUID(),
+    createdAt: new Date().toISOString(),
+  }
+  await db.accounts.add(account)
+  return account
+}
+
+export async function updateAccount(
+  id: string,
+  patch: Partial<Omit<Account, 'id' | 'createdAt'>>,
+): Promise<void> {
+  await db.accounts.update(id, patch)
+}
+
+export async function deleteAccount(id: string): Promise<void> {
+  const usage = await db.transactions.where('accountId').equals(id).count()
+  const transfers = await db.transactions.filter((row) => row.transferToAccountId === id).count()
+  if (usage + transfers > 0) {
+    throw new Error('This account has logged transactions. Keep it so your history stays correct.')
+  }
+  await db.accounts.delete(id)
 }
 
 export function useMonthBudgets(month: string) {

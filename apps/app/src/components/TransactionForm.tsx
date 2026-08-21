@@ -7,6 +7,7 @@ import {
   addTransaction,
   attachReceiptToDate,
   getLatestTransaction,
+  useAccounts,
   useCategories,
   useSettings,
 } from '@/db/hooks'
@@ -19,6 +20,7 @@ import { currencySymbol } from '@/utils/currency'
 import { todayISO } from '@/utils/date'
 import { CategoryIcon } from '@/utils/categoryIcons'
 import { frequencyLabel, RECURRING_FREQUENCIES } from '@/utils/recurring'
+import { accountKindLabel } from '@/utils/accounts'
 import type { Category, RecurringFrequency, TransactionType } from '@/types'
 
 interface QuickAddValues {
@@ -28,6 +30,8 @@ interface QuickAddValues {
   date: string
   note: string
   frequency: RecurringFrequency | 'none'
+  accountId: string
+  transferToAccountId: string
 }
 
 const emptyValues: QuickAddValues = {
@@ -37,6 +41,8 @@ const emptyValues: QuickAddValues = {
   date: todayISO(),
   note: '',
   frequency: 'none',
+  accountId: '',
+  transferToAccountId: '',
 }
 
 function categoriesForType(categories: Category[], type: TransactionType) {
@@ -61,6 +67,7 @@ export function TransactionForm({
   onSaved: (message: string) => void
 }) {
   const categories = useCategories() ?? []
+  const accounts = useAccounts() ?? []
   const categoriesRef = useRef(categories)
   categoriesRef.current = categories
   const settings = useSettings()
@@ -68,6 +75,7 @@ export function TransactionForm({
   const symbol = currencySymbol(currency)
   const amountRef = useRef<HTMLInputElement | null>(null)
   const lastCategoryByType = useRef<Partial<Record<TransactionType, string>>>({})
+  const lastAccountId = useRef<string>('')
   const dialogRef = useRef<HTMLElement | null>(null)
   const [saving, setSaving] = useState(false)
   const [receiptPhoto, setReceiptPhoto] = useState<string | undefined>()
@@ -88,6 +96,8 @@ export function TransactionForm({
 
   const selectedType = watch('type')
   const selectedCategoryId = watch('categoryId')
+  const selectedAccountId = watch('accountId')
+  const creditAccounts = accounts.filter((account) => account.type === 'credit')
   const visibleCategories = useMemo(
     () => categoriesForType(categories, selectedType),
     [categories, selectedType],
@@ -119,6 +129,8 @@ export function TransactionForm({
         income: lastIncome?.categoryId,
       }
 
+      lastAccountId.current = lastAny?.accountId ?? accounts[0]?.id ?? ''
+
       const type = lastAny?.type ?? 'expense'
       const currentCategories = categoriesRef.current
       reset({
@@ -132,6 +144,8 @@ export function TransactionForm({
         date: todayISO(),
         note: '',
         frequency: 'none',
+        accountId: lastAccountId.current,
+        transferToAccountId: '',
       })
       setReceiptPhoto(undefined)
 
@@ -157,6 +171,13 @@ export function TransactionForm({
     setValue,
   ])
 
+  useEffect(() => {
+    if (!open || accounts.length === 0) return
+    if (!selectedAccountId || !accounts.some((account) => account.id === selectedAccountId)) {
+      setValue('accountId', lastAccountId.current || accounts[0]?.id || '')
+    }
+  }, [open, accounts, selectedAccountId, setValue])
+
   function setType(type: TransactionType) {
     setValue('type', type)
     setValue(
@@ -168,10 +189,16 @@ export function TransactionForm({
   async function onSubmit(values: QuickAddValues) {
     const amount = Number(values.amount.replace(/,/g, '').trim())
     if (!values.categoryId) return
+    if (accounts.length > 0 && !values.accountId) return
 
     setSaving(true)
     try {
       const note = values.note.trim() || undefined
+      const accountId = values.accountId || undefined
+      const transferToAccountId =
+        values.type === 'expense' && values.transferToAccountId && values.transferToAccountId !== values.accountId
+          ? values.transferToAccountId
+          : undefined
       if (values.frequency === 'none') {
         await addTransaction({
           type: values.type,
@@ -180,6 +207,8 @@ export function TransactionForm({
           date: values.date,
           note,
           receiptPhoto,
+          accountId,
+          transferToAccountId,
         })
       } else {
         const rule = await addRecurringRule({
@@ -190,6 +219,7 @@ export function TransactionForm({
           frequency: values.frequency,
           startDate: values.date,
           active: true,
+          accountId,
         })
         await generateDueRecurringTransactions()
         if (receiptPhoto) {
@@ -197,7 +227,8 @@ export function TransactionForm({
         }
       }
       lastCategoryByType.current[values.type] = values.categoryId
-      const kind = values.type === 'income' ? 'Income' : 'Expense'
+      if (values.accountId) lastAccountId.current = values.accountId
+      const kind = transferToAccountId ? 'Payment' : values.type === 'income' ? 'Income' : 'Expense'
       onSaved(
         values.frequency === 'none'
           ? `${kind} saved`
@@ -270,6 +301,46 @@ export function TransactionForm({
                     </button>
                   ))}
                 </div>
+
+                {accounts.length > 0 ? (
+                  <label className="block space-y-2">
+                    <span className="text-sm font-medium text-slate-700">Account</span>
+                    <select
+                      {...register('accountId', {
+                        required: accounts.length > 0 ? 'Choose an account' : false,
+                      })}
+                      className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none"
+                    >
+                      {accounts.map((account) => (
+                        <option key={account.id} value={account.id}>
+                          {account.name} · {accountKindLabel(account.type)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ) : null}
+
+                {selectedType === 'expense' && creditAccounts.length > 0 ? (
+                  <label className="block space-y-2">
+                    <span className="text-sm font-medium text-slate-700">Pay toward card</span>
+                    <select
+                      {...register('transferToAccountId')}
+                      className="w-full rounded-xl border border-blue-100 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none"
+                    >
+                      <option value="">Not a card payment</option>
+                      {creditAccounts
+                        .filter((account) => account.id !== selectedAccountId)
+                        .map((account) => (
+                          <option key={account.id} value={account.id}>
+                            {account.name}
+                          </option>
+                        ))}
+                    </select>
+                    <p className="text-xs text-slate-400">
+                      Use this when money leaves a bank account to pay a credit card. It will not count as spending.
+                    </p>
+                  </label>
+                ) : null}
 
                 <label className="block">
                   <span className="sr-only">Amount</span>

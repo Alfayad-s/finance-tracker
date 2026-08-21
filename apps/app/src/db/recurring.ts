@@ -45,6 +45,7 @@ async function materializeRule(rule: RecurringRule, today: string): Promise<numb
           categoryId: rule.categoryId,
           date: next,
           note: rule.note,
+          accountId: rule.accountId,
           isRecurring: true,
           recurringId: rule.id,
           createdAt: now,

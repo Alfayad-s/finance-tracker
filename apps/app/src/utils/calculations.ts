@@ -7,12 +7,12 @@ export function sumAmounts(amounts: number[]): number {
 export function totalsFor(transactions: Transaction[]) {
   const income = sumAmounts(
     transactions
-      .filter((transaction) => transaction.type === 'income')
+      .filter((transaction) => transaction.type === 'income' && !transaction.transferToAccountId)
       .map((transaction) => transaction.amount),
   )
   const expense = sumAmounts(
     transactions
-      .filter((transaction) => transaction.type === 'expense')
+      .filter((transaction) => transaction.type === 'expense' && !transaction.transferToAccountId)
       .map((transaction) => transaction.amount),
   )
 
@@ -37,6 +37,7 @@ export function topCategories(
 
   for (const transaction of transactions) {
     if (transaction.type !== type) continue
+    if (transaction.transferToAccountId) continue
     totals.set(
       transaction.categoryId,
       (totals.get(transaction.categoryId) ?? 0) + transaction.amount,

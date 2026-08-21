@@ -1,4 +1,5 @@
 import type {
+  Account,
   Budget,
   Category,
   Goal,
@@ -24,6 +25,7 @@ export interface BackupFile {
   goals: Goal[]
   recurringRules: RecurringRule[]
   monthlyReviews: MonthlyReview[]
+  accounts?: Account[]
   settings: Settings
 }
 
@@ -68,6 +70,7 @@ export function parseBackup(raw: string): BackupFile {
     goals: asArray<Goal>(parsed.goals).filter(isGoal),
     recurringRules: asArray<RecurringRule>(parsed.recurringRules),
     monthlyReviews: asArray<MonthlyReview>(parsed.monthlyReviews),
+    accounts: asArray<Account>(parsed.accounts),
     settings,
   }
 }
@@ -168,5 +171,7 @@ function normalizeSettings(value: unknown): Settings {
     avatarId: isAvatarId(current.avatarId) ? current.avatarId : DEFAULT_SETTINGS.avatarId,
     language: typeof current.language === 'string' ? current.language : undefined,
     hideAmounts: typeof current.hideAmounts === 'boolean' ? current.hideAmounts : false,
+    accountsSetupComplete:
+      typeof current.accountsSetupComplete === 'boolean' ? current.accountsSetupComplete : true,
   }
 }

@@ -11,26 +11,24 @@ export function SplitNoticeBell() {
   const [open, setOpen] = useState(false)
 
   return (
-    <>
+    <div className="relative">
       <button
         type="button"
         aria-label={unread ? `${unread} unread split notifications` : 'Split notifications'}
         onClick={() => {
           setOpen((current) => !current)
         }}
-        className="fixed top-5 right-4 z-40 inline-flex size-10 items-center justify-center rounded-full bg-white text-slate-700 shadow-[0_8px_24px_rgb(0,0,0,0.08)]"
+        className="relative rounded-full p-2 text-slate-500 hover:bg-blue-50 hover:text-blue-600"
       >
-        <Bell className="size-4" aria-hidden />
+        <Bell className="size-5" strokeWidth={1.75} aria-hidden />
         {unread > 0 ? (
-          <span className="absolute -top-0.5 -right-0.5 min-w-4 rounded-full bg-blue-600 px-1 text-[10px] font-semibold leading-4 text-white">
-            {unread > 9 ? '9+' : unread}
-          </span>
+          <span className="absolute top-1 right-1 size-2 rounded-full bg-blue-600" />
         ) : null}
       </button>
       {open ? (
-        <div className="fixed inset-x-0 top-16 z-40 mx-auto w-full max-w-lg px-4">
-          <div className="max-h-[55dvh] overflow-y-auto rounded-2xl border border-blue-100 bg-white p-3 shadow-xl">
-            <div className="mb-2 flex items-center justify-between">
+        <div className="absolute top-full right-0 z-30 mt-1 w-[min(calc(100vw-2.5rem),20rem)] overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-xl">
+          <div className="max-h-[55dvh] overflow-y-auto p-3">
+            <div className="mb-2 flex items-center justify-between gap-2">
               <p className="text-sm font-semibold text-slate-900">Notifications</p>
               <div className="flex items-center gap-3">
                 {getSoundPref() === 'off' ? (
@@ -43,13 +41,13 @@ export function SplitNoticeBell() {
                   </button>
                 ) : null}
                 {unread > 0 ? (
-                <button
-                  type="button"
-                  className="text-xs font-medium text-blue-600"
-                  onClick={() => void markAllNoticesRead()}
-                >
-                  Mark all read
-                </button>
+                  <button
+                    type="button"
+                    className="text-xs font-medium text-blue-600"
+                    onClick={() => void markAllNoticesRead()}
+                  >
+                    Mark all read
+                  </button>
                 ) : null}
               </div>
             </div>
@@ -80,6 +78,6 @@ export function SplitNoticeBell() {
           </div>
         </div>
       ) : null}
-    </>
+    </div>
   )
 }
